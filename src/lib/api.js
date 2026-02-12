@@ -10,7 +10,9 @@ async function apiFetch(path, options = {}) {
     headers["Authorization"] = `Bearer ${token}`;
   }
   const res = await fetch(path, { ...options, headers });
-  return res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `API error ${res.status}`);
+  return data;
 }
 
 export function saveResult({ app_slug, dimensions, generated_prompt, answers }) {

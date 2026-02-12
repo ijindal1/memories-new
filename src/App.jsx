@@ -835,6 +835,17 @@ function ResultsPage({ answers, onRestart }) {
     }
   }, [isAuthenticated]);
 
+  // Listen for magic link completion from other tab
+  useEffect(() => {
+    if (isAuthenticated || saveState === "idle") return;
+    const channel = new BroadcastChannel("memories-auth");
+    channel.onmessage = () => {
+      // Magic link verified in another tab — force a page reload to pick up the session
+      window.location.reload();
+    };
+    return () => channel.close();
+  }, [isAuthenticated, saveState]);
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(prompt);
@@ -1426,7 +1437,8 @@ export default function App() {
           <Descope
             flowId="sign-up-or-in"
             onSuccess={() => {
-              // Clean the URL and go to landing (which will show saved results if any)
+              // Notify original tab that auth is done
+              new BroadcastChannel("memories-auth").postMessage("authenticated");
               window.history.replaceState({}, "", "/");
               setHandlingMagicLink(false);
             }}
