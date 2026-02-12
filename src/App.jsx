@@ -386,17 +386,17 @@ function generateProfileSummary(profile) {
 // ============================================================
 
 const colors = {
-  bg: "#FDFBF7",
-  bgWarm: "#FAF6EF",
-  text: "#2D2A26",
-  textSecondary: "#6B6560",
-  accent: "#C4704B",
-  accentLight: "#E8C4B0",
-  accentSubtle: "#F5E6DB",
-  border: "#E8E2D9",
-  white: "#FFFFFF",
-  green: "#5B8A6E",
-  greenLight: "#E8F0EB",
+  bg: "#0C0B0E",
+  bgWarm: "#16151A",
+  text: "#F0EDE8",
+  textSecondary: "#9B97A8",
+  accent: "#D94F7A",
+  accentLight: "rgba(217, 79, 122, 0.35)",
+  accentSubtle: "rgba(217, 79, 122, 0.12)",
+  border: "rgba(240, 237, 232, 0.15)",
+  white: "#1E1D24",
+  green: "#8BC49E",
+  greenLight: "rgba(91, 138, 110, 0.12)",
 };
 
 function AuthStatusBadge() {
@@ -411,7 +411,7 @@ function AuthStatusBadge() {
         fontSize: 12,
         color: colors.green,
         background: colors.greenLight,
-        border: "1px solid #cfe3d6",
+        border: "1px solid rgba(91, 138, 110, 0.25)",
         borderRadius: 999,
         padding: "6px 10px",
         maxWidth: 260,
@@ -1004,7 +1004,7 @@ function ResultsPage({ answers, onRestart }) {
             </div>
           ) : saveState === "error" ? (
             <div>
-              <div style={{ fontSize: 14, color: "#c0392b", marginBottom: 12 }}>
+              <div style={{ fontSize: 14, color: "#E74C3C", marginBottom: 12 }}>
                 Something went wrong. Please try again.
               </div>
               <button
@@ -1046,7 +1046,7 @@ function ResultsPage({ answers, onRestart }) {
               <Descope
                 flowId="sign-up-or-in"
                 onSuccess={() => setSaveState("pending-login")}
-                theme="light"
+                theme="dark"
               />
             </div>
           )}
@@ -1345,7 +1345,7 @@ function FigApp() {
               window.history.replaceState({}, "", "/fig");
               setHandlingMagicLink(false);
             }}
-            theme="light"
+            theme="dark"
           />
         </div>
       </div>
