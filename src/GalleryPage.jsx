@@ -78,6 +78,21 @@ export default function GalleryPage() {
           margin: 0 auto;
           padding: 20px var(--page-padding);
         }
+        .gp-nav-links {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          font-size: 14px;
+          font-family: var(--font-sans);
+          color: var(--text-secondary);
+        }
+        .gp-nav-links span {
+          cursor: pointer;
+          transition: color 0.2s;
+        }
+        .gp-nav-links span:hover {
+          color: var(--text-primary);
+        }
         .gp-user-email {
           font-size: 14px;
           color: var(--text-secondary);
@@ -287,7 +302,11 @@ export default function GalleryPage() {
 
       <div className="gp-root">
         <nav className="gp-nav">
-          <UserEmail />
+          <div className="gp-nav-links">
+            <span>About</span>
+            <span>Apps</span>
+            <UserEmail />
+          </div>
         </nav>
 
         <section className="gp-hero">
