@@ -1,0 +1,12 @@
+name = "memories-new"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-09-23"
+
+[vars]
+DESCOPE_PROJECT_ID = "P33F6yAWe8pY24yO8RD4N4wGVEEv"
+APP_URL = "https://memories.new"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "memories-new-db"
+database_id = "69b0cdbc-c3a2-4ae7-ad05-e55e837da4b2"

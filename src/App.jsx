@@ -1,4 +1,26 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useSession, useUser, Descope } from "@descope/react-sdk";
+
+import posthog from "posthog-js";
+import { saveResult, getResultByApp } from "./lib/api.js";
+
+// ============================================================
+// RESPONSIVE HOOK
+// ============================================================
+
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+
+  return isMobile;
+}
 
 // ============================================================
 // DATA: Quiz scenarios, scoring, and prompt generation (v2)
@@ -640,12 +662,28 @@ function QuizPage({ onComplete }) {
     setSelected(optionId);
     setTransitioning(true);
 
+    posthog.capture('question_answered', {
+      question_number: current + 1,
+      question_title: scenario.title,
+      selected_option: optionId,
+    });
+
     setTimeout(() => {
       const newAnswers = [...answers, optionId];
       setAnswers(newAnswers);
       setSelected(null);
 
       if (current + 1 >= SCENARIOS.length) {
+        const profile = computeProfile(newAnswers);
+        posthog.capture('quiz_completed', {
+          density: profile.density,
+          exploration: profile.exploration,
+          confidence: profile.confidence,
+          tone: profile.tone,
+          engagement: profile.engagement,
+          intent: profile.intent,
+          candor: profile.candor,
+        });
         onComplete(newAnswers);
       } else {
         setCurrent(current + 1);
@@ -768,14 +806,40 @@ function QuizPage({ onComplete }) {
 function ResultsPage({ answers, onRestart }) {
   const [copied, setCopied] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [saveState, setSaveState] = useState("idle"); // idle | saving | saved | error
+  const { isAuthenticated, isSessionLoading } = useSession();
+  const { user } = useUser();
   const profile = computeProfile(answers);
   const summary = generateProfileSummary(profile);
   const prompt = generatePrompt(profile);
+
+  const doSave = async () => {
+    setSaveState("saving");
+    try {
+      await saveResult({
+        app_slug: "learn",
+        dimensions: profile,
+        generated_prompt: prompt,
+        answers,
+      });
+      setSaveState("saved");
+    } catch {
+      setSaveState("error");
+    }
+  };
+
+  // Auto-save when user just logged in via the inline Descope flow
+  useEffect(() => {
+    if (isAuthenticated && saveState === "pending-login") {
+      doSave();
+    }
+  }, [isAuthenticated]);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(prompt);
       setCopied(true);
+      posthog.capture('prompt_copied');
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       const ta = document.createElement("textarea");
@@ -785,6 +849,7 @@ function ResultsPage({ answers, onRestart }) {
       document.execCommand("copy");
       document.body.removeChild(ta);
       setCopied(true);
+      posthog.capture('prompt_copied');
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -957,7 +1022,10 @@ function ResultsPage({ answers, onRestart }) {
             </button>
           </div>
           <div
-            onClick={() => setShowPrompt(!showPrompt)}
+            onClick={() => {
+              if (!showPrompt) posthog.capture('prompt_viewed');
+              setShowPrompt(!showPrompt);
+            }}
             style={{ padding: "20px 32px", cursor: "pointer", background: colors.bgWarm }}
           >
             {showPrompt ? (
@@ -1001,10 +1069,328 @@ function ResultsPage({ answers, onRestart }) {
             ))}
           </div>
         </div>
+
+        {/* Save results section */}
+        <div style={{
+          background: colors.white,
+          border: "1px solid " + colors.border,
+          borderRadius: 16,
+          padding: "32px",
+          marginBottom: 60,
+          textAlign: "center",
+        }}>
+          <h3 style={{ fontFamily: "Georgia, serif", fontSize: 18, color: colors.text, margin: "0 0 8px", fontWeight: 600 }}>
+            Save your results
+          </h3>
+          <p style={{ fontSize: 14, color: colors.textSecondary, margin: "0 0 20px" }}>
+            Create an account to save your learning profile and access it anytime.
+          </p>
+
+          {saveState === "saved" ? (
+            <div style={{
+              padding: "12px 24px",
+              background: colors.greenLight,
+              borderRadius: 8,
+              color: colors.green,
+              fontWeight: 500,
+              fontSize: 14,
+            }}>
+              {"\u2713"} Results saved to your account
+            </div>
+          ) : saveState === "saving" ? (
+            <div style={{ fontSize: 14, color: colors.textSecondary }}>
+              Saving...
+            </div>
+          ) : saveState === "error" ? (
+            <div>
+              <div style={{ fontSize: 14, color: "#c0392b", marginBottom: 12 }}>
+                Something went wrong. Please try again.
+              </div>
+              <button
+                onClick={doSave}
+                style={{
+                  background: colors.text,
+                  color: colors.bg,
+                  border: "none",
+                  padding: "10px 24px",
+                  fontSize: 14,
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontWeight: 500,
+                  fontFamily: "inherit",
+                }}
+              >
+                Retry save
+              </button>
+            </div>
+          ) : isAuthenticated ? (
+            <button
+              onClick={doSave}
+              style={{
+                background: colors.text,
+                color: colors.bg,
+                border: "none",
+                padding: "12px 28px",
+                fontSize: 14,
+                borderRadius: 8,
+                cursor: "pointer",
+                fontWeight: 500,
+                fontFamily: "inherit",
+              }}
+            >
+              Save to my account
+            </button>
+          ) : (
+            <div>
+              <Descope
+                flowId="sign-up-or-in"
+                onSuccess={() => setSaveState("pending-login")}
+                theme="light"
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
+
+function SavedResultsPage({ savedResult, onRetake }) {
+  const [copied, setCopied] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
+
+  let dimensions, generatedPrompt, answers;
+  try {
+    dimensions = typeof savedResult.dimensions === "string" ? JSON.parse(savedResult.dimensions) : savedResult.dimensions;
+    answers = typeof savedResult.answers === "string" ? JSON.parse(savedResult.answers) : savedResult.answers;
+    generatedPrompt = savedResult.generated_prompt;
+  } catch {
+    return (
+      <div style={{ minHeight: "100vh", background: colors.bg, padding: 40, textAlign: "center" }}>
+        <p>Could not load saved results.</p>
+        <button onClick={onRetake}>Retake quiz</button>
+      </div>
+    );
+  }
+
+  const summary = generateProfileSummary(dimensions);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(generatedPrompt);
+      setCopied(true);
+      posthog.capture('prompt_copied');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = generatedPrompt;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopied(true);
+      posthog.capture('prompt_copied');
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: colors.bg }}>
+      <nav style={{
+        padding: "20px 32px",
+        maxWidth: 960,
+        margin: "0 auto",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}>
+        <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600 }}>
+          memories<span style={{ color: colors.accent }}>.new</span>
+        </div>
+        <button
+          onClick={onRetake}
+          style={{
+            background: "none",
+            border: "1px solid " + colors.border,
+            padding: "8px 16px",
+            borderRadius: 6,
+            fontSize: 13,
+            color: colors.textSecondary,
+            cursor: "pointer",
+            fontFamily: "inherit",
+          }}
+        >
+          Retake quiz
+        </button>
+      </nav>
+
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: "40px 32px 0" }}>
+        <div style={{
+          display: "inline-block",
+          padding: "6px 14px",
+          background: colors.greenLight,
+          borderRadius: 20,
+          fontSize: 13,
+          color: colors.green,
+          marginBottom: 24,
+          fontWeight: 500,
+        }}>
+          {"\u2713"} Saved learning profile
+        </div>
+
+        <h1 style={{
+          fontFamily: "Georgia, serif",
+          fontSize: 32,
+          lineHeight: 1.25,
+          color: colors.text,
+          margin: "0 0 24px",
+          fontWeight: 600,
+          letterSpacing: "-0.01em",
+        }}>
+          {summary.headline}
+        </h1>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 48 }}>
+          {summary.details.map((detail, i) => (
+            <p key={i} style={{ fontSize: 16, lineHeight: 1.6, color: colors.textSecondary, margin: 0 }}>
+              {detail}
+            </p>
+          ))}
+        </div>
+
+        <div style={{
+          background: colors.white,
+          border: "1px solid " + colors.border,
+          borderRadius: 16,
+          padding: "32px",
+          marginBottom: 32,
+        }}>
+          <h3 style={{
+            fontFamily: "Georgia, serif",
+            fontSize: 14,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: colors.textSecondary,
+            margin: "0 0 24px",
+            fontWeight: 500,
+          }}>
+            Your dimensions
+          </h3>
+
+          {[
+            { label: "Information Density", value: dimensions.density, low: "Spacious", high: "Dense" },
+            { label: "Confidence", value: dimensions.confidence, low: "Supportive", high: "Self-directed" },
+            { label: "Tone", value: dimensions.tone, low: "Warm", high: "Clinical" },
+            { label: "Engagement", value: dimensions.engagement, low: "Absorb", high: "Challenge" },
+            { label: "Candor", value: dimensions.candor, low: "Gentle", high: "Unfiltered" },
+          ].map(dim => (
+            <div key={dim.label} style={{ marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 13 }}>
+                <span style={{ color: colors.textSecondary }}>{dim.low}</span>
+                <span style={{ color: colors.text, fontWeight: 500 }}>{dim.label}</span>
+                <span style={{ color: colors.textSecondary }}>{dim.high}</span>
+              </div>
+              <div style={{ height: 6, background: colors.border, borderRadius: 3, position: "relative" }}>
+                <div style={{
+                  position: "absolute",
+                  left: ((dim.value - 1) / 4) * 100 + "%",
+                  top: -4,
+                  width: 14,
+                  height: 14,
+                  background: colors.accent,
+                  borderRadius: "50%",
+                  transform: "translateX(-50%)",
+                }} />
+              </div>
+            </div>
+          ))}
+
+          <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid " + colors.border }}>
+            <div style={{ display: "flex", gap: 32 }}>
+              <div>
+                <div style={{ fontSize: 12, color: colors.textSecondary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Exploration Mode</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: colors.text }}>{EXPLORATION_LABELS[dimensions.exploration]}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 12, color: colors.textSecondary, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Learning Intent</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: colors.text }}>{INTENT_LABELS[dimensions.intent]}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{
+          background: colors.white,
+          border: "1px solid " + colors.border,
+          borderRadius: 16,
+          overflow: "hidden",
+          marginBottom: 60,
+        }}>
+          <div style={{
+            padding: "24px 32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: "1px solid " + colors.border,
+          }}>
+            <div>
+              <h3 style={{ fontFamily: "Georgia, serif", fontSize: 18, color: colors.text, margin: 0, fontWeight: 600 }}>
+                Your personalized prompt
+              </h3>
+              <p style={{ fontSize: 14, color: colors.textSecondary, margin: "4px 0 0" }}>
+                Paste this at the start of any ChatGPT or Claude conversation
+              </p>
+            </div>
+            <button
+              onClick={handleCopy}
+              style={{
+                background: copied ? colors.green : colors.text,
+                color: colors.bg,
+                border: "none",
+                padding: "10px 24px",
+                fontSize: 14,
+                borderRadius: 8,
+                cursor: "pointer",
+                fontWeight: 500,
+                transition: "background 0.2s ease",
+                whiteSpace: "nowrap",
+                fontFamily: "inherit",
+              }}
+            >
+              {copied ? "Copied \u2713" : "Copy to clipboard"}
+            </button>
+          </div>
+          <div
+            onClick={() => {
+              if (!showPrompt) posthog.capture('prompt_viewed');
+              setShowPrompt(!showPrompt);
+            }}
+            style={{ padding: "20px 32px", cursor: "pointer", background: colors.bgWarm }}
+          >
+            {showPrompt ? (
+              <pre style={{
+                fontFamily: "'SF Mono', 'Fira Code', monospace",
+                fontSize: 13,
+                lineHeight: 1.7,
+                color: colors.text,
+                whiteSpace: "pre-wrap",
+                margin: 0,
+              }}>
+                {generatedPrompt}
+              </pre>
+            ) : (
+              <div style={{ fontSize: 14, color: colors.textSecondary, textAlign: "center", padding: "12px 0" }}>
+                Click to preview your prompt {"\u00b7"} {generatedPrompt.split(" ").length} words
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 // ============================================================
 // MAIN APP
@@ -1013,12 +1399,54 @@ function ResultsPage({ answers, onRestart }) {
 export default function App() {
   const [page, setPage] = useState("landing");
   const [answers, setAnswers] = useState(null);
+  const [savedResult, setSavedResult] = useState(null);
+  const [handlingMagicLink, setHandlingMagicLink] = useState(
+    () => new URLSearchParams(window.location.search).has("descope-login-flow")
+  );
+  const { isAuthenticated, isSessionLoading } = useSession();
+
+  // On mount, if authenticated, check for saved results
+  useEffect(() => {
+    if (isSessionLoading || !isAuthenticated) return;
+    getResultByApp("learn").then((data) => {
+      if (data.result) {
+        setSavedResult(data.result);
+      }
+    }).catch(() => {});
+  }, [isAuthenticated, isSessionLoading]);
+
+  // Handle magic link callback — render Descope to process the token
+  if (handlingMagicLink) {
+    return (
+      <div style={{ minHeight: "100vh", background: colors.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", maxWidth: 400 }}>
+          <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600, marginBottom: 32 }}>
+            memories<span style={{ color: colors.accent }}>.new</span>
+          </div>
+          <Descope
+            flowId="sign-up-or-in"
+            onSuccess={() => {
+              // Clean the URL and go to landing (which will show saved results if any)
+              window.history.replaceState({}, "", "/");
+              setHandlingMagicLink(false);
+            }}
+            onError={() => {
+              window.history.replaceState({}, "", "/");
+              setHandlingMagicLink(false);
+            }}
+            theme="light"
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (page === "quiz") {
     return (
       <QuizPage
         onComplete={(ans) => {
           setAnswers(ans);
+          setSavedResult(null);
           setPage("results");
           window.scrollTo(0, 0);
         }}
@@ -1039,9 +1467,25 @@ export default function App() {
     );
   }
 
+  // Show saved results for returning authenticated users
+  if (savedResult && page === "landing") {
+    return (
+      <SavedResultsPage
+        savedResult={savedResult}
+        onRetake={() => {
+          setSavedResult(null);
+          posthog.capture('quiz_started');
+          setPage("quiz");
+          window.scrollTo(0, 0);
+        }}
+      />
+    );
+  }
+
   return (
     <LandingPage
       onStart={() => {
+        posthog.capture('quiz_started');
         setPage("quiz");
         window.scrollTo(0, 0);
       }}
