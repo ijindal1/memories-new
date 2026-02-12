@@ -5,6 +5,9 @@ import { useSession, useUser, Descope } from "@descope/react-sdk";
 import posthog from "posthog-js";
 import { saveResult, getResultByApp } from "./lib/api.js";
 import { assemblePrompt } from "./lib/prompts.js";
+import { generateProfileSummary, EXPLORATION_LABELS, INTENT_LABELS } from "./lib/profile.js";
+import { generateSkill } from "./skills/generateSkill.js";
+import { downloadSkill } from "./skills/packageSkill.js";
 import GalleryPage from "./GalleryPage.jsx";
 
 // ============================================================
@@ -318,66 +321,6 @@ function computeProfile(answers) {
     exploration: mode(explorationVotes),
     intent: mode(intentVotes),
     candor: Math.round(avg(candorScores))
-  };
-}
-
-const EXPLORATION_LABELS = {
-  "explorer": "Explorer",
-  "problem-solver": "Problem Solver",
-  "deep-diver": "Deep Diver",
-  "connector": "Connector"
-};
-
-const INTENT_LABELS = {
-  "understand": "Understand Deeply",
-  "do": "Get Things Done",
-  "explore": "Explore Curiously"
-};
-
-const EXPLORATION_DESCRIPTIONS = {
-  "explorer": "you naturally want a guided path \u2014 show me the map, then let me navigate",
-  "problem-solver": "you want the answer first, then just enough context to use it",
-  "deep-diver": "you want to build understanding from the foundations up",
-  "connector": "you look for bridges and analogies from what you already know"
-};
-
-const INTENT_DESCRIPTIONS = {
-  "understand": "understand things deeply \u2014 you want the \"why\" behind the \"what\"",
-  "do": "get practical, actionable information \u2014 you want to make decisions and move",
-  "explore": "follow interesting threads \u2014 you want to discover connections and possibilities"
-};
-
-function generateProfileSummary(profile) {
-  const densityLabel = profile.density >= 4 ? "dense, efficient" : profile.density >= 3 ? "balanced" : "spacious, scaffolded";
-  const toneLabel = profile.tone >= 4 ? "clean and direct" : profile.tone >= 3 ? "professional" : "warm and conversational";
-
-  const confidenceDesc = profile.confidence >= 4
-    ? "You're self-directed and prefer AI that respects your ability to figure things out."
-    : profile.confidence >= 3
-    ? "You appreciate a balance of support and substance."
-    : "You appreciate encouragement when tackling unfamiliar material \u2014 not because you need hand-holding, but because a little reassurance keeps your momentum going.";
-
-  const engagementDesc = profile.engagement >= 4
-    ? "You prefer to be challenged and tested \u2014 active engagement helps you retain more."
-    : profile.engagement >= 3
-    ? "You like a mix of information delivery and the occasional question to keep you sharp."
-    : "You prefer to absorb information at your own pace rather than being quizzed.";
-
-  const candorDesc = profile.candor >= 4
-    ? "When it comes to feedback, you want the unfiltered truth \u2014 skip the diplomacy and tell it straight."
-    : profile.candor >= 3
-    ? "When it comes to feedback, you prefer a balanced perspective \u2014 show me both sides and let me decide."
-    : "When it comes to feedback, you prefer encouragement first, with criticism framed constructively.";
-
-  return {
-    headline: "You're a" + (profile.exploration === "explorer" ? "n" : "") + " " + EXPLORATION_LABELS[profile.exploration] + " who prefers " + densityLabel + " explanations in a " + toneLabel + " style.",
-    details: [
-      "When approaching new topics, " + EXPLORATION_DESCRIPTIONS[profile.exploration] + ".",
-      confidenceDesc,
-      engagementDesc,
-      candorDesc,
-      "Your primary learning intent is to " + INTENT_DESCRIPTIONS[profile.intent] + ".",
-    ]
   };
 }
 
@@ -949,6 +892,45 @@ function ResultsPage({ answers, onRestart }) {
         </div>
 
         <div style={{
+          background: colors.white,
+          border: "1px solid " + colors.border,
+          borderRadius: 16,
+          padding: "32px",
+          marginBottom: 32,
+          textAlign: "center",
+        }}>
+          <h3 style={{ fontFamily: "Georgia, serif", fontSize: 18, color: colors.text, margin: "0 0 8px", fontWeight: 600 }}>
+            Your Skill File
+          </h3>
+          <p style={{ fontSize: 14, color: colors.textSecondary, margin: "0 0 20px", lineHeight: 1.5 }}>
+            Works with any AI assistant — download and drop into any Claude Chat or Project, or open the file and copy the instructions for ChatGPT and others.
+          </p>
+          <button
+            onClick={() => {
+              const skillContent = generateSkill(profile);
+              downloadSkill(skillContent);
+              posthog.capture('skill_downloaded', { app_slug: 'fig', source: 'results' });
+            }}
+            style={{
+              background: colors.accent,
+              color: "#fff",
+              border: "none",
+              padding: "12px 28px",
+              fontSize: 14,
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 500,
+              fontFamily: "inherit",
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={e => e.target.style.opacity = "0.85"}
+            onMouseLeave={e => e.target.style.opacity = "1"}
+          >
+            Download .skill file
+          </button>
+        </div>
+
+        <div style={{
           background: colors.accentSubtle,
           borderRadius: 16,
           padding: "32px",
@@ -960,7 +942,7 @@ function ResultsPage({ answers, onRestart }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[
               { app: "ChatGPT", instruction: "Go to Settings \u2192 Personalization \u2192 Custom Instructions \u2192 paste in \"How would you like ChatGPT to respond?\"" },
-              { app: "Claude", instruction: "Go to Settings \u2192 Profile \u2192 paste as your style preference" },
+              { app: "Claude", instruction: "Go to Settings \u2192 Profile \u2192 paste as your style preference, or download the .skill file above and drop it into a Project" },
               { app: "Any AI", instruction: "Paste at the start of any new conversation" },
             ].map(item => (
               <div key={item.app} style={{ display: "flex", gap: 12, fontSize: 14, lineHeight: 1.5 }}>
@@ -1289,6 +1271,45 @@ function SavedResultsPage({ savedResult, onRetake }) {
               </div>
             )}
           </div>
+        </div>
+
+        <div style={{
+          background: colors.white,
+          border: "1px solid " + colors.border,
+          borderRadius: 16,
+          padding: "32px",
+          marginBottom: 60,
+          textAlign: "center",
+        }}>
+          <h3 style={{ fontFamily: "Georgia, serif", fontSize: 18, color: colors.text, margin: "0 0 8px", fontWeight: 600 }}>
+            Your Skill File
+          </h3>
+          <p style={{ fontSize: 14, color: colors.textSecondary, margin: "0 0 20px", lineHeight: 1.5 }}>
+            Works with any AI assistant — download and drop into any Claude Chat or Project, or open the file and copy the instructions for ChatGPT and others.
+          </p>
+          <button
+            onClick={() => {
+              const skillContent = generateSkill(dimensions);
+              downloadSkill(skillContent);
+              posthog.capture('skill_downloaded', { app_slug: 'fig', source: 'profile' });
+            }}
+            style={{
+              background: colors.accent,
+              color: "#fff",
+              border: "none",
+              padding: "12px 28px",
+              fontSize: 14,
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 500,
+              fontFamily: "inherit",
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={e => e.target.style.opacity = "0.85"}
+            onMouseLeave={e => e.target.style.opacity = "1"}
+          >
+            Download .skill file
+          </button>
         </div>
       </div>
     </div>
