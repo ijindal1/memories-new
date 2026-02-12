@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 import { useSession, useUser, Descope } from "@descope/react-sdk";
 
 import posthog from "posthog-js";
@@ -1301,13 +1301,19 @@ function SavedResultsPage({ savedResult, onRetake }) {
 // ============================================================
 
 function FigApp() {
-  const [page, setPage] = useState("landing");
+  const navigate = useNavigate();
+  const [page, setPage] = useState("quiz");
   const [answers, setAnswers] = useState(null);
   const [savedResult, setSavedResult] = useState(null);
   const [handlingMagicLink, setHandlingMagicLink] = useState(
     () => new URLSearchParams(window.location.search).has("descope-login-flow")
   );
   const { isAuthenticated, isSessionLoading } = useSession();
+
+  // Track quiz start on mount
+  useEffect(() => {
+    posthog.capture('quiz_started');
+  }, []);
 
   // On mount, if authenticated, check for saved results
   useEffect(() => {
@@ -1365,7 +1371,7 @@ function FigApp() {
         answers={answers}
         onRestart={() => {
           setAnswers(null);
-          setPage("landing");
+          setPage("quiz");
           window.scrollTo(0, 0);
         }}
       />
@@ -1373,7 +1379,7 @@ function FigApp() {
   }
 
   // Show saved results for returning authenticated users
-  if (savedResult && page === "landing") {
+  if (savedResult && page === "quiz") {
     return (
       <SavedResultsPage
         savedResult={savedResult}
@@ -1387,15 +1393,8 @@ function FigApp() {
     );
   }
 
-  return (
-    <LandingPage
-      onStart={() => {
-        posthog.capture('quiz_started');
-        setPage("quiz");
-        window.scrollTo(0, 0);
-      }}
-    />
-  );
+  // Fallback — shouldn't normally reach here
+  return null;
 }
 
 // ============================================================
