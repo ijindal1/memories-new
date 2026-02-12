@@ -1,69 +1,45 @@
 import { Link } from "react-router-dom";
 import { useSession, useUser } from "@descope/react-sdk";
 
-const colors = {
-  canvas: "#0C0B0E",
-  surface: "#16151A",
-  elevated: "#1E1D24",
-  primary: "#F0EDE8",
-  secondary: "#9B97A8",
-  accent: "#C4704B",
-};
-
 const APPS = [
   {
     slug: "fig",
-    name: "Fig",
-    tagline: "Discover how you learn — get a prompt that reshapes AI for you.",
+    name: "fig",
+    tagline: "Discover how your brain wants information.",
     image: "/images/fig.jpg",
     live: true,
   },
   {
     slug: "reed",
-    name: "Reed",
-    tagline: "Turn any article into a conversation tuned to your curiosity.",
+    name: "reed",
+    tagline: "Find your voice so AI can use it.",
     image: "/images/reed.jpg",
     live: false,
   },
   {
     slug: "tandem",
-    name: "Tandem",
-    tagline: "Practice hard conversations before they happen.",
+    name: "tandem",
+    tagline: "A user manual for your partnership.",
     image: "/images/tandem.jpg",
     live: false,
   },
   {
     slug: "compass",
-    name: "Compass",
-    tagline: "Map your values and find what you're optimizing for.",
+    name: "compass",
+    tagline: "Understand how you actually decide.",
     image: "/images/compass.jpg",
     live: false,
   },
 ];
 
-function AuthPill() {
+function UserEmail() {
   const { isAuthenticated } = useSession();
   const { user } = useUser();
   if (!isAuthenticated) return null;
   return (
-    <div
-      style={{
-        fontSize: 12,
-        color: "#8BC49E",
-        background: "rgba(91,138,110,0.15)",
-        border: "1px solid rgba(91,138,110,0.25)",
-        borderRadius: 999,
-        padding: "6px 12px",
-        maxWidth: 240,
-        overflow: "hidden",
-        whiteSpace: "nowrap",
-        textOverflow: "ellipsis",
-        fontFamily: "'DM Sans', -apple-system, sans-serif",
-      }}
-      title={user?.email ? `Signed in as ${user.email}` : "Signed in"}
-    >
-      {user?.email ? user.email : "Signed in"}
-    </div>
+    <span className="gp-user-email">
+      {user?.email || "Signed in"}
+    </span>
   );
 }
 
@@ -71,196 +47,292 @@ export default function GalleryPage() {
   return (
     <>
       <style>{`
-        .gallery-grid {
+        .gp-root {
+          --canvas: #0C0B0E;
+          --surface: #16151A;
+          --border: rgba(240, 237, 232, 0.12);
+          --border-strong: rgba(240, 237, 232, 0.2);
+          --text-primary: #F0EDE8;
+          --text-secondary: #9B97A8;
+          --text-tertiary: #5C5869;
+          --fig-accent: #D94F7A;
+          --font-serif: 'Instrument Serif', Georgia, serif;
+          --font-sans: 'DM Sans', -apple-system, sans-serif;
+          --page-max-width: 1200px;
+          --page-padding: 40px;
+          --card-radius: 10px;
+
+          min-height: 100vh;
+          background: var(--canvas);
+          color: var(--text-primary);
+          font-family: var(--font-sans);
+          -webkit-font-smoothing: antialiased;
+        }
+
+        /* NAV */
+        .gp-nav {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          max-width: var(--page-max-width);
+          margin: 0 auto;
+          padding: 20px var(--page-padding);
+        }
+        .gp-user-email {
+          font-size: 14px;
+          color: var(--text-secondary);
+          font-family: var(--font-sans);
+        }
+
+        /* HERO */
+        .gp-hero {
+          text-align: center;
+          padding: 80px var(--page-padding) 72px;
+          max-width: var(--page-max-width);
+          margin: 0 auto;
+        }
+        .gp-wordmark {
+          font-family: var(--font-serif);
+          font-size: 64px;
+          font-weight: 400;
+          color: var(--text-primary);
+          line-height: 1.1;
+          letter-spacing: -0.01em;
+          margin: 0 0 16px;
+        }
+        .gp-tagline {
+          font-family: var(--font-sans);
+          font-size: 18px;
+          font-weight: 300;
+          color: var(--text-secondary);
+          line-height: 1.5;
+          margin: 0;
+        }
+
+        /* DIVIDER */
+        .gp-divider {
+          max-width: var(--page-max-width);
+          margin: 0 auto;
+          padding: 0 var(--page-padding);
+        }
+        .gp-divider hr {
+          border: none;
+          border-top: 1px solid var(--border-strong);
+        }
+
+        /* CARD GRID */
+        .gp-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
+          max-width: var(--page-max-width);
+          margin: 0 auto;
+          padding: 0 var(--page-padding) 80px;
         }
-        @media (max-width: 900px) {
-          .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+
+        /* CARD */
+        .gp-card {
+          display: flex;
+          flex-direction: column;
+          padding: 24px;
+          position: relative;
         }
-        @media (max-width: 600px) {
-          .gallery-grid { grid-template-columns: 1fr; }
+        .gp-card:not(:nth-child(4n)) {
+          border-right: 1px solid var(--border);
         }
-        .gallery-card {
-          background: ${colors.surface};
-          border-radius: 14px;
-          overflow: hidden;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .gallery-card.live {
-          cursor: pointer;
-        }
-        .gallery-card.live:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        }
-        .gallery-card .card-image {
+
+        .gp-card-image {
           width: 100%;
           aspect-ratio: 4/3;
+          border-radius: var(--card-radius);
+          overflow: hidden;
+          margin-bottom: 20px;
+          background: var(--surface);
+          position: relative;
+        }
+        .gp-card-image img {
+          width: 100%;
+          height: 100%;
           object-fit: cover;
           display: block;
         }
-        .gallery-card.coming-soon .card-image {
-          opacity: 0.45;
+
+        /* Active card hover on image */
+        .gp-card.active {
+          cursor: pointer;
+        }
+        .gp-card.active .gp-card-image {
+          transition: box-shadow 0.3s ease, transform 0.2s ease;
+        }
+        .gp-card.active:hover .gp-card-image {
+          box-shadow: 0 8px 40px rgba(217, 79, 122, 0.12);
+          transform: translateY(-2px);
+        }
+
+        /* Coming soon overlay */
+        .gp-card.coming-soon .gp-card-image::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: rgba(12, 11, 14, 0.5);
+          pointer-events: none;
+        }
+        .gp-card.coming-soon .gp-card-image img {
+          filter: saturate(0.25) brightness(0.75);
+        }
+
+        .gp-card-name {
+          font-family: var(--font-serif);
+          font-size: 26px;
+          font-weight: 400;
+          color: var(--text-primary);
+          margin: 0 0 6px;
+          line-height: 1.2;
+        }
+        .gp-card.coming-soon .gp-card-name {
+          color: var(--text-secondary);
+        }
+
+        .gp-card-desc {
+          font-family: var(--font-sans);
+          font-size: 15px;
+          font-weight: 400;
+          color: var(--text-secondary);
+          line-height: 1.5;
+          margin: 0 0 20px;
+          flex-grow: 1;
+        }
+        .gp-card.coming-soon .gp-card-desc {
+          color: var(--text-tertiary);
+        }
+
+        .gp-card-cta {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-family: var(--font-sans);
+          font-size: 14px;
+          font-weight: 400;
+          color: var(--text-primary);
+          text-decoration: none;
+          transition: color 0.2s;
+        }
+        .gp-card-cta:hover {
+          color: var(--fig-accent);
+        }
+        .gp-card-cta .arrow {
+          font-size: 18px;
+          transition: transform 0.2s;
+        }
+        .gp-card-cta:hover .arrow {
+          transform: translate(2px, -2px);
+        }
+
+        .gp-coming-soon-label {
+          font-family: var(--font-sans);
+          font-size: 12px;
+          font-weight: 400;
+          color: var(--text-tertiary);
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+          .gp-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .gp-card {
+            border-right: none !important;
+          }
+          .gp-card:nth-child(odd) {
+            border-right: 1px solid var(--border) !important;
+          }
+          .gp-card:nth-child(n+3) {
+            border-top: 1px solid var(--border);
+          }
+          .gp-wordmark {
+            font-size: 52px;
+          }
+          .gp-root {
+            --page-padding: 32px;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .gp-grid {
+            grid-template-columns: 1fr;
+          }
+          .gp-card {
+            border-right: none !important;
+            border-top: 1px solid var(--border);
+            padding: 24px 0;
+          }
+          .gp-card:first-child {
+            border-top: none;
+          }
+          .gp-hero {
+            padding: 60px var(--page-padding) 48px;
+          }
+          .gp-wordmark {
+            font-size: 40px;
+          }
+          .gp-tagline {
+            font-size: 16px;
+          }
+          .gp-root {
+            --page-padding: 20px;
+          }
         }
       `}</style>
 
-      <div style={{ minHeight: "100vh", background: colors.canvas }}>
-        {/* Header */}
-        <nav
-          style={{
-            padding: "20px 32px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            maxWidth: 1080,
-            margin: "0 auto",
-          }}
-        >
-          <div
-            style={{
-              fontFamily: "'Instrument Serif', Georgia, serif",
-              fontSize: 22,
-              color: colors.primary,
-            }}
-          >
-            memories<span style={{ color: colors.accent }}>.new</span>
-          </div>
-          <AuthPill />
+      <div className="gp-root">
+        <nav className="gp-nav">
+          <UserEmail />
         </nav>
 
-        {/* Hero */}
-        <div
-          style={{
-            maxWidth: 600,
-            margin: "0 auto",
-            padding: "60px 32px 48px",
-            textAlign: "center",
-          }}
-        >
-          <h1
-            style={{
-              fontFamily: "'Instrument Serif', Georgia, serif",
-              fontSize: 40,
-              lineHeight: 1.15,
-              color: colors.primary,
-              margin: "0 0 14px",
-              fontWeight: 400,
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Know yourself.
-            <br />
-            Save what you find.
-          </h1>
-          <p
-            style={{
-              fontFamily: "'DM Sans', -apple-system, sans-serif",
-              fontSize: 16,
-              lineHeight: 1.6,
-              color: colors.secondary,
-              margin: 0,
-            }}
-          >
-            Small apps that help you understand how you think, learn, and decide
-            — so AI can finally talk to&nbsp;you, not at&nbsp;you.
-          </p>
+        <section className="gp-hero">
+          <h1 className="gp-wordmark">memories.new</h1>
+          <p className="gp-tagline">Know yourself. Save what you find.</p>
+        </section>
+
+        <div className="gp-divider">
+          <hr />
         </div>
 
-        {/* Card grid */}
-        <div
-          style={{
-            maxWidth: 1080,
-            margin: "0 auto",
-            padding: "0 32px 80px",
-          }}
-        >
-          <div className="gallery-grid">
-            {APPS.map((app) => {
-              const CardWrapper = app.live ? Link : "div";
-              const wrapperProps = app.live
-                ? { to: `/${app.slug}`, style: { textDecoration: "none", color: "inherit", display: "block" } }
-                : {};
+        <section className="gp-grid">
+          {APPS.map((app) => {
+            if (app.live) {
               return (
-              <CardWrapper
-                key={app.slug}
-                className={`gallery-card ${app.live ? "live" : "coming-soon"}`}
-                {...wrapperProps}
-              >
-                <img
-                  src={app.image}
-                  alt={app.name}
-                  className="card-image"
-                  loading="lazy"
-                />
-                <div style={{ padding: "16px 18px 20px" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: 6,
-                    }}
-                  >
-                    <h2
-                      style={{
-                        fontFamily: "'Instrument Serif', Georgia, serif",
-                        fontSize: 22,
-                        color: colors.primary,
-                        margin: 0,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {app.name}
-                    </h2>
-                    {!app.live && (
-                      <span
-                        style={{
-                          fontFamily: "'DM Sans', -apple-system, sans-serif",
-                          fontSize: 11,
-                          color: colors.secondary,
-                          background: colors.elevated,
-                          borderRadius: 999,
-                          padding: "3px 10px",
-                          letterSpacing: "0.04em",
-                          textTransform: "uppercase",
-                          fontWeight: 500,
-                        }}
-                      >
-                        Coming soon
-                      </span>
-                    )}
+                <Link
+                  key={app.slug}
+                  to={`/${app.slug}`}
+                  className="gp-card active"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <div className="gp-card-image">
+                    <img src={app.image} alt={app.name} loading="lazy" />
                   </div>
-                  <p
-                    style={{
-                      fontFamily: "'DM Sans', -apple-system, sans-serif",
-                      fontSize: 14,
-                      lineHeight: 1.5,
-                      color: colors.secondary,
-                      margin: "0 0 14px",
-                    }}
-                  >
-                    {app.tagline}
-                  </p>
-                  {app.live && (
-                    <span
-                      style={{
-                        fontFamily: "'DM Sans', -apple-system, sans-serif",
-                        fontSize: 14,
-                        fontWeight: 500,
-                        color: colors.accent,
-                      }}
-                    >
-                      Try it {"\u2192"}
-                    </span>
-                  )}
-                </div>
-              </CardWrapper>
+                  <h2 className="gp-card-name">{app.name}</h2>
+                  <p className="gp-card-desc">{app.tagline}</p>
+                  <span className="gp-card-cta">
+                    <span>Try it</span>
+                    <span className="arrow">{"\u2197"}</span>
+                  </span>
+                </Link>
               );
-            })}
-          </div>
-        </div>
+            }
+            return (
+              <div key={app.slug} className="gp-card coming-soon">
+                <div className="gp-card-image">
+                  <img src={app.image} alt={app.name} loading="lazy" />
+                </div>
+                <h2 className="gp-card-name">{app.name}</h2>
+                <p className="gp-card-desc">{app.tagline}</p>
+                <div className="gp-coming-soon-label">Coming soon</div>
+              </div>
+            );
+          })}
+        </section>
       </div>
     </>
   );
