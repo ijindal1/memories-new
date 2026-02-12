@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { useSession, useUser, Descope } from "@descope/react-sdk";
 
 import posthog from "posthog-js";
 import { saveResult, getResultByApp } from "./lib/api.js";
 import { assemblePrompt } from "./lib/prompts.js";
+import GalleryPage from "./GalleryPage.jsx";
 
 // ============================================================
 // RESPONSIVE HOOK
@@ -435,9 +437,9 @@ function LandingPage({ onStart }) {
         maxWidth: 960,
         margin: "0 auto",
       }}>
-        <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600 }}>
+        <Link to="/" style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600, textDecoration: "none" }}>
           memories<span style={{ color: colors.accent }}>.new</span>
-        </div>
+        </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <AuthStatusBadge />
           <div style={{ display: "flex", gap: 24, fontSize: 14, color: colors.textSecondary }}>
@@ -682,9 +684,9 @@ function QuizPage({ onComplete }) {
         alignItems: "center",
         justifyContent: "space-between",
       }}>
-        <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600 }}>
+        <Link to="/" style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600, textDecoration: "none" }}>
           memories<span style={{ color: colors.accent }}>.new</span>
-        </div>
+        </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <AuthStatusBadge />
           <div style={{ fontSize: 14, color: colors.textSecondary }}>
@@ -857,9 +859,9 @@ function ResultsPage({ answers, onRestart }) {
         alignItems: "center",
         justifyContent: "space-between",
       }}>
-        <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600 }}>
+        <Link to="/" style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600, textDecoration: "none" }}>
           memories<span style={{ color: colors.accent }}>.new</span>
-        </div>
+        </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <AuthStatusBadge />
           <button
@@ -1201,9 +1203,9 @@ function SavedResultsPage({ savedResult, onRetake }) {
         alignItems: "center",
         justifyContent: "space-between",
       }}>
-        <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600 }}>
+        <Link to="/" style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600, textDecoration: "none" }}>
           memories<span style={{ color: colors.accent }}>.new</span>
-        </div>
+        </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <AuthStatusBadge />
           <button
@@ -1392,10 +1394,10 @@ function SavedResultsPage({ savedResult, onRetake }) {
 
 
 // ============================================================
-// MAIN APP
+// FIG APP (quiz flow)
 // ============================================================
 
-export default function App() {
+function FigApp() {
   const [page, setPage] = useState("landing");
   const [answers, setAnswers] = useState(null);
   const [savedResult, setSavedResult] = useState(null);
@@ -1427,11 +1429,11 @@ export default function App() {
             onSuccess={() => {
               // Notify original tab that auth is done
               new BroadcastChannel("memories-auth").postMessage("authenticated");
-              window.history.replaceState({}, "", "/");
+              window.history.replaceState({}, "", "/fig");
               setHandlingMagicLink(false);
             }}
             onError={() => {
-              window.history.replaceState({}, "", "/");
+              window.history.replaceState({}, "", "/fig");
               setHandlingMagicLink(false);
             }}
             theme="light"
@@ -1490,5 +1492,19 @@ export default function App() {
         window.scrollTo(0, 0);
       }}
     />
+  );
+}
+
+// ============================================================
+// ROUTER SHELL
+// ============================================================
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<GalleryPage />} />
+      <Route path="/fig" element={<FigApp />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
