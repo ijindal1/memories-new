@@ -142,7 +142,7 @@ export default function GalleryPage() {
 
         .gp-card-image {
           width: 100%;
-          aspect-ratio: 4/3;
+          height: 180px;
           border-radius: var(--card-radius);
           overflow: hidden;
           margin-bottom: 20px;
