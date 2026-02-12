@@ -486,9 +486,9 @@ export default function GalleryPage() {
             <h3>How it works</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
               {[
-                { num: "01", title: "9 quick scenarios", desc: "React to real AI responses \u2014 not abstract personality questions. Takes about 4 minutes." },
-                { num: "02", title: "We map your profile", desc: "Your answers reveal 7 dimensions: how dense you like information, what tone works for you, whether you want to be challenged, and more." },
-                { num: "03", title: "Get your custom prompt", desc: "A personalized instruction you paste into ChatGPT or Claude that permanently changes how AI responds to you." },
+                { num: "01", title: "Take a short experience", desc: "Each app is a few minutes of real scenarios \u2014 not abstract personality questions. React to things the way you naturally would." },
+                { num: "02", title: "We map what we learn", desc: "Your choices reveal dimensions of how you think, communicate, learn, and decide. Every app builds a different part of the picture." },
+                { num: "03", title: "AI adapts to you", desc: "Your results become instructions that reshape how AI talks to you \u2014 across ChatGPT, Claude, and anything else you use." },
               ].map(step => (
                 <div key={step.num} className="gp-step">
                   <div className="gp-step-num">{step.num}</div>
@@ -504,17 +504,17 @@ export default function GalleryPage() {
           <div className="gp-diff-card">
             <div className="gp-diff-header">
               <h3>The difference it makes</h3>
-              <p>Same question: "How does compound interest work?"</p>
+              <p>Same question, two different people.</p>
             </div>
             <div className="gp-diff-body">
               <div className="gp-diff-col gp-diff-without">
-                <div className="gp-diff-col-label">Without your prompt</div>
+                <div className="gp-diff-col-label">Generic AI</div>
                 <div className="gp-diff-col-text">
                   "Compound interest is interest calculated on both the initial principal and the accumulated interest from previous periods. The formula is A = P(1 + r/n)^(nt), where P is principal, r is annual rate..."
                 </div>
               </div>
               <div className="gp-diff-col gp-diff-with">
-                <div className="gp-diff-col-label">With your prompt</div>
+                <div className="gp-diff-col-label">AI that knows you</div>
                 <div className="gp-diff-col-text">
                   "Imagine you plant a money tree. Year 1, it grows $10 in fruit. But here's the magic: Year 2, those $10 plant their own tiny seeds. Now you've got fruit growing on fruit. That's compound interest {"\u2014"} your money making money on top of money..."
                 </div>
