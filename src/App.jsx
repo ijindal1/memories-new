@@ -3,6 +3,7 @@ import { useSession, useUser, Descope } from "@descope/react-sdk";
 
 import posthog from "posthog-js";
 import { saveResult, getResultByApp } from "./lib/api.js";
+import { assemblePrompt } from "./lib/prompts.js";
 
 // ============================================================
 // RESPONSIVE HOOK
@@ -376,57 +377,6 @@ function generateProfileSummary(profile) {
       "Your primary learning intent is to " + INTENT_DESCRIPTIONS[profile.intent] + ".",
     ]
   };
-}
-
-// ============================================================
-// PROMPT GENERATION (v2)
-// ============================================================
-
-function generatePrompt(profile) {
-  const densityInstruction = profile.density >= 4
-    ? "Be direct and dense. Lead with the bottom line, then provide supporting detail. Don't over-explain or pad with unnecessary build-up."
-    : profile.density >= 3
-    ? "Lead with the key point, then give me one level of supporting detail. Keep paragraphs focused on one idea each. I'll ask if I want more."
-    : "Build up to ideas gradually. Use short paragraphs, space between concepts, and check in before adding complexity. Never dump all the information at once.";
-
-  const explorationMap = {
-    "explorer": "When I ask about something new, help me map the territory first. Give me the lay of the land before diving into details. Use a guided, step-by-step progression.",
-    "problem-solver": "Give me the answer first, then the essential context I need to understand and use it. Be efficient \u2014 I'll ask follow-ups if I want more.",
-    "deep-diver": "Start from foundations and build up. I want to understand the 'why' behind things, not just the 'what'. Don't skip steps in the reasoning.",
-    "connector": "Use analogies, comparisons, and bridges to things I might already know. Frame new concepts in terms of familiar ones, then show where the analogy breaks down."
-  };
-  const explorationInstruction = explorationMap[profile.exploration];
-
-  const toneInstruction = profile.tone >= 4
-    ? "Be precise and neutral. Lead with information, not rapport. Skip pleasantries and get to substance."
-    : profile.tone >= 3
-    ? "Be clear and approachable. A natural, professional tone \u2014 like a smart colleague explaining something at a whiteboard."
-    : "Be warm and conversational. Use 'you', tell brief stories or examples, and make the explanation feel like a knowledgeable friend talking to me.";
-
-  const candorInstruction = profile.candor >= 4
-    ? "Give me your unfiltered take. Push back when I'm wrong. Skip caveats and hedging. Never repeat a point you've already made. I'd rather hear an uncomfortable truth than a comfortable non-answer."
-    : profile.candor >= 3
-    ? "Be honest and direct, but constructive. Present both sides clearly and let me draw my own conclusions."
-    : "Be encouraging and diplomatic. When pointing out issues, lead with strengths first and frame weaknesses constructively.";
-
-  const engagementInstruction = profile.engagement >= 4
-    ? "Challenge me. Ask me questions, pose scenarios, make me think before giving answers. I retain more when I'm actively tested."
-    : profile.engagement >= 3
-    ? "Occasionally offer optional challenges or thought experiments, but don't force them. Mark them clearly as optional."
-    : "Provide clear summaries and structured takeaways. Don't quiz me or ask me to 'think about it' \u2014 I prefer to absorb and revisit.";
-
-  const intentMap = {
-    "understand": "build deep understanding. Help me grasp why things work, not just how. Prioritize clarity of explanation over speed.",
-    "do": "get practical, actionable information efficiently. Prioritize what I need to know to make decisions or take action.",
-    "explore": "explore and discover. Follow interesting threads, show me connections between ideas, and surprise me with angles I wouldn't have thought of."
-  };
-  const intentInstruction = intentMap[profile.intent];
-
-  const confidenceInstruction = profile.confidence <= 2
-    ? "\nWhen I'm tackling something unfamiliar, include brief reassurances that the material is learnable. Normalize that it takes time. Celebrate small progress points.\n"
-    : "";
-
-  return "When responding to me, please follow these preferences for how I best absorb information:\n\n**Structure:** " + densityInstruction + "\n\n**Approach:** " + explorationInstruction + "\n\n**Tone:** " + toneInstruction + "\n\n**Honesty:** " + candorInstruction + "\n\n**Engagement:** " + engagementInstruction + "\n\n**My goal is usually to:** " + intentInstruction + "\n" + confidenceInstruction + "\nApply these preferences naturally \u2014 don't mention them or call attention to the fact that you're adjusting your style. Just respond in the way described above.";
 }
 
 // ============================================================
@@ -843,7 +793,7 @@ function ResultsPage({ answers, onRestart }) {
   const { isAuthenticated, isSessionLoading } = useSession();
   const profile = computeProfile(answers);
   const summary = generateProfileSummary(profile);
-  const prompt = generatePrompt(profile);
+  const prompt = assemblePrompt(profile);
 
   const doSave = async () => {
     setSaveState("saving");
