@@ -379,6 +379,105 @@ export default function GalleryPage() {
           }
         }
 
+        /* FOOTER */
+        .gp-footer {
+          max-width: var(--page-max-width);
+          margin: 0 auto;
+          padding: 0 var(--page-padding) 48px;
+        }
+        .gp-footer hr {
+          border: none;
+          border-top: 1px solid var(--border-strong);
+          margin-bottom: 48px;
+        }
+        .gp-footer-inner {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 40px;
+        }
+        .gp-footer-brand {
+          max-width: 320px;
+        }
+        .gp-footer-logo {
+          font-family: var(--font-serif);
+          font-size: 24px;
+          font-weight: 400;
+          color: var(--text-primary);
+          margin-bottom: 10px;
+        }
+        .gp-footer-brand p {
+          font-family: var(--font-sans);
+          font-size: 14px;
+          color: var(--text-tertiary);
+          line-height: 1.5;
+          margin: 0;
+        }
+        .gp-footer-links {
+          display: flex;
+          gap: 48px;
+        }
+        .gp-footer-col {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .gp-footer-col a,
+        .gp-footer-col span {
+          font-family: var(--font-sans);
+          font-size: 14px;
+          color: var(--text-secondary);
+          text-decoration: none;
+          transition: color 0.2s;
+          cursor: pointer;
+        }
+        .gp-footer-col a:hover,
+        .gp-footer-col span:hover {
+          color: var(--text-primary);
+        }
+        .gp-footer-bottom {
+          margin-top: 48px;
+          padding-top: 24px;
+          border-top: 1px solid var(--border);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .gp-footer-copy {
+          font-family: var(--font-sans);
+          font-size: 13px;
+          color: var(--text-tertiary);
+        }
+        .gp-footer-social {
+          display: flex;
+          gap: 20px;
+        }
+        .gp-footer-social a {
+          color: var(--text-tertiary);
+          text-decoration: none;
+          font-size: 14px;
+          font-family: var(--font-sans);
+          transition: color 0.2s;
+        }
+        .gp-footer-social a:hover {
+          color: var(--text-primary);
+        }
+
+        @media (max-width: 600px) {
+          .gp-footer-inner {
+            flex-direction: column;
+            gap: 32px;
+          }
+          .gp-footer-links {
+            gap: 32px;
+          }
+          .gp-footer-bottom {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+          }
+        }
+
         /* RESPONSIVE */
         @media (max-width: 1024px) {
           .gp-grid {
@@ -522,6 +621,37 @@ export default function GalleryPage() {
             </div>
           </div>
         </div>
+
+        <footer className="gp-footer">
+          <hr />
+          <div className="gp-footer-inner">
+            <div className="gp-footer-brand">
+              <div className="gp-footer-logo">memories.new</div>
+              <p>Small apps that help you understand how you think, learn, and decide — so AI can finally work for you.</p>
+            </div>
+            <div className="gp-footer-links">
+              <div className="gp-footer-col">
+                <span>About</span>
+                <Link to="/fig" style={{ textDecoration: "none", color: "inherit" }}>Fig</Link>
+                <span>Reed</span>
+                <span>Tandem</span>
+                <span>Compass</span>
+              </div>
+              <div className="gp-footer-col">
+                <span>Terms</span>
+                <span>Privacy</span>
+                <span>Contact</span>
+              </div>
+            </div>
+          </div>
+          <div className="gp-footer-bottom">
+            <div className="gp-footer-copy">{"\u00A9"} 2026 memories.new</div>
+            <div className="gp-footer-social">
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer">X</a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </div>
+          </div>
+        </footer>
       </div>
     </>
   );
