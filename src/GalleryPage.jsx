@@ -174,10 +174,16 @@ export default function GalleryPage() {
           }}
         >
           <div className="gallery-grid">
-            {APPS.map((app) => (
-              <div
+            {APPS.map((app) => {
+              const CardWrapper = app.live ? Link : "div";
+              const wrapperProps = app.live
+                ? { to: `/${app.slug}`, style: { textDecoration: "none", color: "inherit", display: "block" } }
+                : {};
+              return (
+              <CardWrapper
                 key={app.slug}
                 className={`gallery-card ${app.live ? "live" : "coming-soon"}`}
+                {...wrapperProps}
               >
                 <img
                   src={app.image}
@@ -235,22 +241,21 @@ export default function GalleryPage() {
                     {app.tagline}
                   </p>
                   {app.live && (
-                    <Link
-                      to={`/${app.slug}`}
+                    <span
                       style={{
                         fontFamily: "'DM Sans', -apple-system, sans-serif",
                         fontSize: 14,
                         fontWeight: 500,
                         color: colors.accent,
-                        textDecoration: "none",
                       }}
                     >
                       Try it {"\u2192"}
-                    </Link>
+                    </span>
                   )}
                 </div>
-              </div>
-            ))}
+              </CardWrapper>
+              );
+            })}
           </div>
         </div>
       </div>
