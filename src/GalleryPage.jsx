@@ -32,6 +32,14 @@ const APPS = [
   },
 ];
 
+function ProfileLink() {
+  const { isAuthenticated } = useSession();
+  if (!isAuthenticated) return null;
+  return (
+    <Link to="/profile" style={{ color: "inherit", textDecoration: "none" }}>Profile</Link>
+  );
+}
+
 function UserEmail() {
   const { isAuthenticated } = useSession();
   const { user } = useUser();
@@ -532,6 +540,7 @@ export default function GalleryPage() {
           <div className="gp-nav-links">
             <span>About</span>
             <span>Apps</span>
+            <ProfileLink />
             <UserEmail />
           </div>
         </nav>

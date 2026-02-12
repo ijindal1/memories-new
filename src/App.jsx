@@ -9,6 +9,7 @@ import { generateProfileSummary, EXPLORATION_LABELS, INTENT_LABELS } from "./lib
 import { generateSkill } from "./skills/generateSkill.js";
 import { downloadSkill } from "./skills/packageSkill.js";
 import GalleryPage from "./GalleryPage.jsx";
+import ProfilePage from "./ProfilePage.jsx";
 
 // ============================================================
 // RESPONSIVE HOOK
@@ -970,15 +971,29 @@ function ResultsPage({ answers, onRestart }) {
           </p>
 
           {saveState === "saved" ? (
-            <div style={{
-              padding: "12px 24px",
-              background: colors.greenLight,
-              borderRadius: 8,
-              color: colors.green,
-              fontWeight: 500,
-              fontSize: 14,
-            }}>
-              {"\u2713"} Results saved to your account
+            <div>
+              <div style={{
+                padding: "12px 24px",
+                background: colors.greenLight,
+                borderRadius: 8,
+                color: colors.green,
+                fontWeight: 500,
+                fontSize: 14,
+                marginBottom: 12,
+              }}>
+                {"\u2713"} Results saved to your account
+              </div>
+              <Link to="/profile" style={{
+                color: colors.textSecondary,
+                fontSize: 14,
+                textDecoration: "none",
+                transition: "color 0.15s",
+              }}
+                onMouseEnter={e => e.target.style.color = colors.text}
+                onMouseLeave={e => e.target.style.color = colors.textSecondary}
+              >
+                View in your profile {"\u2192"}
+              </Link>
             </div>
           ) : saveState === "saving" ? (
             <div style={{ fontSize: 14, color: colors.textSecondary }}>
@@ -1427,6 +1442,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<GalleryPage />} />
       <Route path="/fig" element={<FigApp />} />
+      <Route path="/profile" element={<ProfilePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
