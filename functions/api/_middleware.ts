@@ -1,4 +1,4 @@
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { createRemoteJWKSet, decodeJwt, jwtVerify } from "jose";
 import type { Env, UserData } from "../types";
 
 let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
@@ -24,12 +24,20 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         getJWKS(projectId),
         { issuer: [projectId, `https://api.descope.com/${projectId}`] }
       );
+      console.log("[auth] Verified JWT payload:", JSON.stringify(payload));
       context.data.user = {
         sub: payload.sub!,
         email: (payload as any).email,
         name: (payload as any).name,
       } satisfies UserData;
-    } catch {
+    } catch (error) {
+      try {
+        const decoded = decodeJwt(token);
+        console.log("[auth] Unverified JWT payload:", JSON.stringify(decoded));
+      } catch {
+        console.log("[auth] Could not decode JWT payload");
+      }
+      console.error("[auth] JWT verification failed:", error);
       // Invalid token — user stays unauthenticated
     }
   }

@@ -447,6 +447,33 @@ const colors = {
   greenLight: "#E8F0EB",
 };
 
+function AuthStatusBadge() {
+  const { isAuthenticated } = useSession();
+  const { user } = useUser();
+
+  if (!isAuthenticated) return null;
+
+  return (
+    <div
+      style={{
+        fontSize: 12,
+        color: colors.green,
+        background: colors.greenLight,
+        border: "1px solid #cfe3d6",
+        borderRadius: 999,
+        padding: "6px 10px",
+        maxWidth: 260,
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+      }}
+      title={user?.email ? `Signed in as ${user.email}` : "Signed in"}
+    >
+      {user?.email ? `Signed in: ${user.email}` : "Signed in"}
+    </div>
+  );
+}
+
 function LandingPage({ onStart }) {
   return (
     <div style={{ minHeight: "100vh", background: colors.bg }}>
@@ -461,9 +488,12 @@ function LandingPage({ onStart }) {
         <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600 }}>
           memories<span style={{ color: colors.accent }}>.new</span>
         </div>
-        <div style={{ display: "flex", gap: 24, fontSize: 14, color: colors.textSecondary }}>
-          <span style={{ cursor: "pointer" }}>About</span>
-          <span style={{ cursor: "pointer" }}>Apps</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <AuthStatusBadge />
+          <div style={{ display: "flex", gap: 24, fontSize: 14, color: colors.textSecondary }}>
+            <span style={{ cursor: "pointer" }}>About</span>
+            <span style={{ cursor: "pointer" }}>Apps</span>
+          </div>
         </div>
       </nav>
 
@@ -705,8 +735,11 @@ function QuizPage({ onComplete }) {
         <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600 }}>
           memories<span style={{ color: colors.accent }}>.new</span>
         </div>
-        <div style={{ fontSize: 14, color: colors.textSecondary }}>
-          {current + 1} of {SCENARIOS.length}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <AuthStatusBadge />
+          <div style={{ fontSize: 14, color: colors.textSecondary }}>
+            {current + 1} of {SCENARIOS.length}
+          </div>
         </div>
       </div>
 
@@ -808,7 +841,6 @@ function ResultsPage({ answers, onRestart }) {
   const [showPrompt, setShowPrompt] = useState(false);
   const [saveState, setSaveState] = useState("idle"); // idle | saving | saved | error
   const { isAuthenticated, isSessionLoading } = useSession();
-  const { user } = useUser();
   const profile = computeProfile(answers);
   const summary = generateProfileSummary(profile);
   const prompt = generatePrompt(profile);
@@ -833,7 +865,7 @@ function ResultsPage({ answers, onRestart }) {
     if (isAuthenticated && saveState === "pending-login") {
       doSave();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, saveState]);
 
   // Listen for magic link completion from other tab
   useEffect(() => {
@@ -878,21 +910,24 @@ function ResultsPage({ answers, onRestart }) {
         <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600 }}>
           memories<span style={{ color: colors.accent }}>.new</span>
         </div>
-        <button
-          onClick={onRestart}
-          style={{
-            background: "none",
-            border: "1px solid " + colors.border,
-            padding: "8px 16px",
-            borderRadius: 6,
-            fontSize: 13,
-            color: colors.textSecondary,
-            cursor: "pointer",
-            fontFamily: "inherit",
-          }}
-        >
-          Retake quiz
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <AuthStatusBadge />
+          <button
+            onClick={onRestart}
+            style={{
+              background: "none",
+              border: "1px solid " + colors.border,
+              padding: "8px 16px",
+              borderRadius: 6,
+              fontSize: 13,
+              color: colors.textSecondary,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            Retake quiz
+          </button>
+        </div>
       </nav>
 
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "40px 32px 0" }}>
@@ -1219,21 +1254,24 @@ function SavedResultsPage({ savedResult, onRetake }) {
         <div style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600 }}>
           memories<span style={{ color: colors.accent }}>.new</span>
         </div>
-        <button
-          onClick={onRetake}
-          style={{
-            background: "none",
-            border: "1px solid " + colors.border,
-            padding: "8px 16px",
-            borderRadius: 6,
-            fontSize: 13,
-            color: colors.textSecondary,
-            cursor: "pointer",
-            fontFamily: "inherit",
-          }}
-        >
-          Retake quiz
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <AuthStatusBadge />
+          <button
+            onClick={onRetake}
+            style={{
+              background: "none",
+              border: "1px solid " + colors.border,
+              padding: "8px 16px",
+              borderRadius: 6,
+              fontSize: 13,
+              color: colors.textSecondary,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            Retake quiz
+          </button>
+        </div>
       </nav>
 
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "40px 32px 0" }}>

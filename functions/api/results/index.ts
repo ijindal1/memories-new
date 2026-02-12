@@ -21,32 +21,40 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   const db = context.env.DB;
+  try {
+    // Upsert user
+    await db
+      .prepare(
+        `INSERT INTO users (id, email, name) VALUES (?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET email = excluded.email, name = excluded.name, updated_at = datetime('now')`
+      )
+      .bind(user.sub, user.email ?? null, user.name ?? null)
+      .run();
 
-  // Upsert user
-  await db
-    .prepare(
-      `INSERT INTO users (id, email, name) VALUES (?, ?, ?)
-       ON CONFLICT(id) DO UPDATE SET email = excluded.email, name = excluded.name, updated_at = datetime('now')`
-    )
-    .bind(user.sub, user.email ?? null, user.name ?? null)
-    .run();
+    // Insert quiz result
+    const result = await db
+      .prepare(
+        `INSERT INTO quiz_results (user_id, app_slug, dimensions, generated_prompt, answers)
+         VALUES (?, ?, ?, ?, ?)`
+      )
+      .bind(
+        user.sub,
+        app_slug,
+        JSON.stringify(dimensions),
+        generated_prompt,
+        JSON.stringify(answers)
+      )
+      .run();
 
-  // Insert quiz result
-  const result = await db
-    .prepare(
-      `INSERT INTO quiz_results (user_id, app_slug, dimensions, generated_prompt, answers)
-       VALUES (?, ?, ?, ?, ?)`
-    )
-    .bind(
-      user.sub,
-      app_slug,
-      JSON.stringify(dimensions),
-      generated_prompt,
-      JSON.stringify(answers)
-    )
-    .run();
-
-  return Response.json({ success: true, id: result.meta.last_row_id });
+    return Response.json({ success: true, id: result.meta.last_row_id });
+  } catch (error) {
+    console.error("[results] Failed to save quiz result", {
+      userSub: user.sub,
+      appSlug: app_slug,
+      error,
+    });
+    return Response.json({ error: "Failed to save result" }, { status: 500 });
+  }
 };
 
 // GET /api/results — list all results for authenticated user

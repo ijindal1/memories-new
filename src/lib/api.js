@@ -26,8 +26,24 @@ export function getResultByApp(appSlug) {
   return apiFetch(`/api/results/${appSlug}`);
 }
 
+export function getResultHistoryByApp(appSlug) {
+  return apiFetch(`/api/results/${appSlug}/history`);
+}
+
 export function getResults() {
   return apiFetch("/api/results");
+}
+
+export function getProfile() {
+  return apiFetch("/api/profile");
+}
+
+export function getProfileShareLink() {
+  return apiFetch("/api/profile/share");
+}
+
+export function getSharedProfile(token) {
+  return apiFetch(`/api/profile/share/${token}`);
 }
 
 export function postEvents(events) {

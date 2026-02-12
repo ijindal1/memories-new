@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "dev:full": "wrangler pages dev --d1=DB -- vite",
+    "dev:api": "wrangler pages dev --d1=DB --proxy=5173",
+    "dev:full": "npm run dev & npm run dev:api",
     "deploy": "wrangler pages deploy dist"
   },
   "dependencies": {
