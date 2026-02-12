@@ -251,6 +251,134 @@ export default function GalleryPage() {
           text-transform: uppercase;
         }
 
+        /* INFO SECTIONS */
+        .gp-info {
+          max-width: 720px;
+          margin: 0 auto;
+          padding: 0 var(--page-padding);
+        }
+        .gp-info-card {
+          border: 1px solid var(--border-strong);
+          border-radius: 12px;
+          padding: 40px 48px;
+          margin-bottom: 32px;
+        }
+        .gp-info-card h3 {
+          font-family: var(--font-serif);
+          font-size: 14px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: var(--text-secondary);
+          margin: 0 0 32px;
+          font-weight: 400;
+        }
+        .gp-step {
+          display: flex;
+          gap: 20px;
+          align-items: flex-start;
+        }
+        .gp-step-num {
+          font-family: var(--font-serif);
+          font-size: 24px;
+          color: var(--text-tertiary);
+          font-weight: 400;
+          min-width: 36px;
+          line-height: 1.3;
+        }
+        .gp-step-title {
+          font-weight: 500;
+          color: var(--text-primary);
+          font-size: 16px;
+          margin-bottom: 4px;
+          font-family: var(--font-sans);
+        }
+        .gp-step-desc {
+          color: var(--text-secondary);
+          font-size: 15px;
+          line-height: 1.5;
+          font-family: var(--font-sans);
+        }
+
+        .gp-diff-card {
+          border: 1px solid var(--border-strong);
+          border-radius: 12px;
+          overflow: hidden;
+          margin-bottom: 80px;
+        }
+        .gp-diff-header {
+          padding: 24px 48px 12px;
+        }
+        .gp-diff-header h3 {
+          font-family: var(--font-serif);
+          font-size: 14px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: var(--text-secondary);
+          margin: 0;
+          font-weight: 400;
+        }
+        .gp-diff-header p {
+          font-size: 14px;
+          color: var(--text-secondary);
+          margin: 6px 0 0;
+          font-family: var(--font-sans);
+        }
+        .gp-diff-body {
+          display: flex;
+          border-top: 1px solid var(--border-strong);
+        }
+        .gp-diff-col {
+          flex: 1;
+          padding: 24px 32px;
+        }
+        .gp-diff-col-label {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-bottom: 12px;
+          font-weight: 600;
+          font-family: var(--font-sans);
+        }
+        .gp-diff-col-text {
+          font-size: 14px;
+          line-height: 1.6;
+          font-family: var(--font-sans);
+        }
+        .gp-diff-without {
+          border-right: 1px solid var(--border-strong);
+        }
+        .gp-diff-without .gp-diff-col-label {
+          color: var(--text-tertiary);
+        }
+        .gp-diff-without .gp-diff-col-text {
+          color: var(--text-secondary);
+        }
+        .gp-diff-with {
+          background: rgba(91, 138, 110, 0.08);
+        }
+        .gp-diff-with .gp-diff-col-label {
+          color: #8BC49E;
+        }
+        .gp-diff-with .gp-diff-col-text {
+          color: var(--text-primary);
+        }
+
+        @media (max-width: 600px) {
+          .gp-info-card {
+            padding: 28px 24px;
+          }
+          .gp-diff-header {
+            padding: 20px 24px 12px;
+          }
+          .gp-diff-body {
+            flex-direction: column;
+          }
+          .gp-diff-without {
+            border-right: none;
+            border-bottom: 1px solid var(--border-strong);
+          }
+        }
+
         /* RESPONSIVE */
         @media (max-width: 1024px) {
           .gp-grid {
@@ -352,6 +480,48 @@ export default function GalleryPage() {
             );
           })}
         </section>
+
+        <div className="gp-info">
+          <div className="gp-info-card">
+            <h3>How it works</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+              {[
+                { num: "01", title: "9 quick scenarios", desc: "React to real AI responses \u2014 not abstract personality questions. Takes about 4 minutes." },
+                { num: "02", title: "We map your profile", desc: "Your answers reveal 7 dimensions: how dense you like information, what tone works for you, whether you want to be challenged, and more." },
+                { num: "03", title: "Get your custom prompt", desc: "A personalized instruction you paste into ChatGPT or Claude that permanently changes how AI responds to you." },
+              ].map(step => (
+                <div key={step.num} className="gp-step">
+                  <div className="gp-step-num">{step.num}</div>
+                  <div>
+                    <div className="gp-step-title">{step.title}</div>
+                    <div className="gp-step-desc">{step.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="gp-diff-card">
+            <div className="gp-diff-header">
+              <h3>The difference it makes</h3>
+              <p>Same question: "How does compound interest work?"</p>
+            </div>
+            <div className="gp-diff-body">
+              <div className="gp-diff-col gp-diff-without">
+                <div className="gp-diff-col-label">Without your prompt</div>
+                <div className="gp-diff-col-text">
+                  "Compound interest is interest calculated on both the initial principal and the accumulated interest from previous periods. The formula is A = P(1 + r/n)^(nt), where P is principal, r is annual rate..."
+                </div>
+              </div>
+              <div className="gp-diff-col gp-diff-with">
+                <div className="gp-diff-col-label">With your prompt</div>
+                <div className="gp-diff-col-text">
+                  "Imagine you plant a money tree. Year 1, it grows $10 in fruit. But here's the magic: Year 2, those $10 plant their own tiny seeds. Now you've got fruit growing on fruit. That's compound interest {"\u2014"} your money making money on top of money..."
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
