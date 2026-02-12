@@ -88,6 +88,9 @@ export default function GalleryPage() {
           overflow: hidden;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+        .gallery-card.live {
+          cursor: pointer;
+        }
         .gallery-card.live:hover {
           transform: translateY(-4px);
           box-shadow: 0 8px 24px rgba(0,0,0,0.4);
