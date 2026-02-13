@@ -11,6 +11,7 @@ import { downloadSkill } from "./skills/packageSkill.js";
 import GalleryPage from "./GalleryPage.jsx";
 import ProfilePage from "./ProfilePage.jsx";
 import SharedProfilePage from "./SharedProfilePage.jsx";
+import AboutPage from "./AboutPage.jsx";
 
 // ============================================================
 // RESPONSIVE HOOK
@@ -385,7 +386,13 @@ function LandingPage({ onStart }) {
         <Link to="/" style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600, textDecoration: "none" }}>
           memories<span style={{ color: colors.accent }}>.new</span>
         </Link>
-        <AuthStatusBadge />
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <Link to="/about" style={{ fontSize: 14, color: colors.textSecondary, textDecoration: "none", transition: "color 0.2s" }}
+            onMouseEnter={e => e.target.style.color = colors.text}
+            onMouseLeave={e => e.target.style.color = colors.textSecondary}
+          >About</Link>
+          <AuthStatusBadge />
+        </div>
       </nav>
 
       <div style={{
@@ -1489,6 +1496,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<GalleryPage />} />
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/fig" element={<FigApp />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/p/:token" element={<SharedProfilePage />} />

@@ -32,22 +32,14 @@ const APPS = [
   },
 ];
 
-function ProfileLink() {
-  const { isAuthenticated } = useSession();
-  if (!isAuthenticated) return null;
-  return (
-    <Link to="/profile" style={{ color: "inherit", textDecoration: "none" }}>Profile</Link>
-  );
-}
-
-function UserEmail() {
+function UserLink() {
   const { isAuthenticated } = useSession();
   const { user } = useUser();
   if (!isAuthenticated) return null;
   return (
-    <span className="gp-user-email">
-      {user?.email || "Signed in"}
-    </span>
+    <Link to="/profile" className="gp-user-email" style={{ textDecoration: "none", color: "inherit" }}>
+      {user?.email || "Profile"}
+    </Link>
   );
 }
 
@@ -538,10 +530,9 @@ export default function GalleryPage() {
       <div className="gp-root">
         <nav className="gp-nav">
           <div className="gp-nav-links">
-            <span>About</span>
+            <Link to="/about" style={{ textDecoration: "none", color: "inherit" }}>About</Link>
             <span>Apps</span>
-            <ProfileLink />
-            <UserEmail />
+            <UserLink />
           </div>
         </nav>
 
@@ -640,7 +631,7 @@ export default function GalleryPage() {
             </div>
             <div className="gp-footer-links">
               <div className="gp-footer-col">
-                <span>About</span>
+                <Link to="/about" style={{ textDecoration: "none", color: "inherit" }}>About</Link>
                 <Link to="/fig" style={{ textDecoration: "none", color: "inherit" }}>Fig</Link>
                 <span>Reed</span>
                 <span>Tandem</span>
