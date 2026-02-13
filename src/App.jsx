@@ -10,6 +10,7 @@ import { generateSkill } from "./skills/generateSkill.js";
 import { downloadSkill } from "./skills/packageSkill.js";
 import GalleryPage from "./GalleryPage.jsx";
 import ProfilePage from "./ProfilePage.jsx";
+import SharedProfilePage from "./SharedProfilePage.jsx";
 
 // ============================================================
 // RESPONSIVE HOOK
@@ -648,7 +649,7 @@ function ResultsPage({ answers, onRestart }) {
     setSaveState("saving");
     try {
       await saveResult({
-        app_slug: "learn",
+        app_slug: "fig",
         dimensions: profile,
         generated_prompt: prompt,
         answers,
@@ -954,63 +955,131 @@ function ResultsPage({ answers, onRestart }) {
           </div>
         </div>
 
-        {/* Save results section */}
-        <div style={{
-          background: colors.white,
-          border: "1px solid " + colors.border,
-          borderRadius: 16,
-          padding: "32px",
-          marginBottom: 60,
-          textAlign: "center",
-        }}>
-          <h3 style={{ fontFamily: "Georgia, serif", fontSize: 18, color: colors.text, margin: "0 0 8px", fontWeight: 600 }}>
-            Save your results
-          </h3>
-          <p style={{ fontSize: 14, color: colors.textSecondary, margin: "0 0 20px" }}>
-            Create an account to save your learning profile and access it anytime.
-          </p>
+        {/* Save / Try-it-in section */}
+        {saveState === "saved" ? (
+          <div style={{
+            background: colors.white,
+            border: "1px solid " + colors.border,
+            borderRadius: 16,
+            padding: "32px",
+            marginBottom: 32,
+            textAlign: "center",
+          }}>
+            <div style={{
+              padding: "8px 16px",
+              background: colors.greenLight,
+              borderRadius: 8,
+              color: colors.green,
+              fontWeight: 500,
+              fontSize: 13,
+              display: "inline-block",
+              marginBottom: 20,
+            }}>
+              {"\u2713"} Results saved
+            </div>
+            <h3 style={{ fontFamily: "Georgia, serif", fontSize: 18, color: colors.text, margin: "0 0 8px", fontWeight: 600 }}>
+              Try it in
+            </h3>
+            <p style={{ fontSize: 14, color: colors.textSecondary, margin: "0 0 24px" }}>
+              Paste your prompt or drop your .skill file into any of these
+            </p>
+            <div style={{
+              display: "flex",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              gap: 12,
+              marginBottom: 20,
+            }}>
+              {[
+                { name: "Claude", color: "#D97757", bg: "rgba(217,119,87,0.12)" },
+                { name: "ChatGPT", color: "#10A37F", bg: "rgba(16,163,127,0.12)" },
+                { name: "Perplexity", color: "#1B8DFF", bg: "rgba(27,141,255,0.12)" },
+                { name: "Gemini", color: "#8B6CEF", bg: "rgba(139,108,239,0.12)" },
+              ].map(ai => (
+                <div key={ai.name} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "8px 16px",
+                  background: ai.bg,
+                  borderRadius: 999,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: ai.color,
+                }}>
+                  <span style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    background: ai.color,
+                    flexShrink: 0,
+                  }} />
+                  {ai.name}
+                </div>
+              ))}
+            </div>
+            <Link to="/profile" style={{
+              color: colors.textSecondary,
+              fontSize: 14,
+              textDecoration: "none",
+              transition: "color 0.15s",
+            }}
+              onMouseEnter={e => e.target.style.color = colors.text}
+              onMouseLeave={e => e.target.style.color = colors.textSecondary}
+            >
+              View in your profile {"\u2192"}
+            </Link>
+          </div>
+        ) : (
+          <div style={{
+            background: colors.white,
+            border: "1px solid " + colors.border,
+            borderRadius: 16,
+            padding: "32px",
+            marginBottom: 32,
+            textAlign: "center",
+          }}>
+            <h3 style={{ fontFamily: "Georgia, serif", fontSize: 18, color: colors.text, margin: "0 0 8px", fontWeight: 600 }}>
+              Save your results
+            </h3>
+            <p style={{ fontSize: 14, color: colors.textSecondary, margin: "0 0 20px" }}>
+              Create an account to save your learning profile and access it anytime.
+            </p>
 
-          {saveState === "saved" ? (
-            <div>
-              <div style={{
-                padding: "12px 24px",
-                background: colors.greenLight,
-                borderRadius: 8,
-                color: colors.green,
-                fontWeight: 500,
-                fontSize: 14,
-                marginBottom: 12,
-              }}>
-                {"\u2713"} Results saved to your account
+            {(saveState === "saving" || saveState === "pending-login") ? (
+              <div style={{ fontSize: 14, color: colors.textSecondary }}>
+                Saving...
               </div>
-              <Link to="/profile" style={{
-                color: colors.textSecondary,
-                fontSize: 14,
-                textDecoration: "none",
-                transition: "color 0.15s",
-              }}
-                onMouseEnter={e => e.target.style.color = colors.text}
-                onMouseLeave={e => e.target.style.color = colors.textSecondary}
-              >
-                View in your profile {"\u2192"}
-              </Link>
-            </div>
-          ) : saveState === "saving" ? (
-            <div style={{ fontSize: 14, color: colors.textSecondary }}>
-              Saving...
-            </div>
-          ) : saveState === "error" ? (
-            <div>
-              <div style={{ fontSize: 14, color: "#E74C3C", marginBottom: 12 }}>
-                Something went wrong. Please try again.
+            ) : saveState === "error" ? (
+              <div>
+                <div style={{ fontSize: 14, color: "#E74C3C", marginBottom: 12 }}>
+                  Something went wrong. Please try again.
+                </div>
+                <button
+                  onClick={doSave}
+                  style={{
+                    background: colors.text,
+                    color: colors.bg,
+                    border: "none",
+                    padding: "10px 24px",
+                    fontSize: 14,
+                    borderRadius: 8,
+                    cursor: "pointer",
+                    fontWeight: 500,
+                    fontFamily: "inherit",
+                  }}
+                >
+                  Retry save
+                </button>
               </div>
+            ) : isAuthenticated ? (
               <button
                 onClick={doSave}
                 style={{
                   background: colors.text,
                   color: colors.bg,
                   border: "none",
-                  padding: "10px 24px",
+                  padding: "12px 28px",
                   fontSize: 14,
                   borderRadius: 8,
                   cursor: "pointer",
@@ -1018,36 +1087,19 @@ function ResultsPage({ answers, onRestart }) {
                   fontFamily: "inherit",
                 }}
               >
-                Retry save
+                Save to my account
               </button>
-            </div>
-          ) : isAuthenticated ? (
-            <button
-              onClick={doSave}
-              style={{
-                background: colors.text,
-                color: colors.bg,
-                border: "none",
-                padding: "12px 28px",
-                fontSize: 14,
-                borderRadius: 8,
-                cursor: "pointer",
-                fontWeight: 500,
-                fontFamily: "inherit",
-              }}
-            >
-              Save to my account
-            </button>
-          ) : (
-            <div>
-              <Descope
-                flowId="sign-up-or-in"
-                onSuccess={() => setSaveState("pending-login")}
-                theme="dark"
-              />
-            </div>
-          )}
-        </div>
+            ) : (
+              <div>
+                <Descope
+                  flowId="sign-up-or-in"
+                  onSuccess={() => setSaveState("pending-login")}
+                  theme="dark"
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1354,7 +1406,7 @@ function FigApp() {
   // On mount, if authenticated, check for saved results
   useEffect(() => {
     if (isSessionLoading || !isAuthenticated) return;
-    getResultByApp("learn").then((data) => {
+    getResultByApp("fig").then((data) => {
       if (data.result) {
         setSavedResult(data.result);
       }
@@ -1372,8 +1424,10 @@ function FigApp() {
           <Descope
             flowId="sign-up-or-in"
             onSuccess={() => {
-              // Notify original tab that auth is done
+              // Notify original tab that auth is done, then close this tab
               new BroadcastChannel("memories-auth").postMessage("authenticated");
+              window.close();
+              // Fallback if window.close() is blocked by browser
               window.history.replaceState({}, "", "/fig");
               setHandlingMagicLink(false);
             }}
@@ -1443,6 +1497,7 @@ export default function App() {
       <Route path="/" element={<GalleryPage />} />
       <Route path="/fig" element={<FigApp />} />
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/p/:token" element={<SharedProfilePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

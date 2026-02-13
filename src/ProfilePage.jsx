@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSession, useUser, Descope } from "@descope/react-sdk";
 import posthog from "posthog-js";
 
-import { getProfile } from "./lib/api.js";
+import { getProfile, getProfileShareLink } from "./lib/api.js";
 import { generateProfileSummary, EXPLORATION_LABELS, INTENT_LABELS } from "./lib/profile.js";
 import { generateSkill } from "./skills/generateSkill.js";
 import { downloadSkill } from "./skills/packageSkill.js";
@@ -23,6 +23,9 @@ export default function ProfilePage() {
   const [error, setError] = useState(null);
   const [expandedApp, setExpandedApp] = useState(null);
   const [copiedApp, setCopiedApp] = useState(null);
+  const [shareUrl, setShareUrl] = useState(null);
+  const [shareCopied, setShareCopied] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
 
   useEffect(() => {
     if (isSessionLoading) return;
@@ -62,6 +65,35 @@ export default function ProfilePage() {
     const skillContent = generateSkill(dimensions);
     downloadSkill(skillContent);
     posthog.capture("skill_downloaded", { app_slug: slug, source: "profile" });
+  };
+
+  const handleShare = async () => {
+    setShareLoading(true);
+    try {
+      const data = await getProfileShareLink();
+      const url = `${window.location.origin}/p/${data.token}`;
+      setShareUrl(url);
+      posthog.capture("profile_shared");
+    } catch {
+      setShareUrl(null);
+    }
+    setShareLoading(false);
+  };
+
+  const handleShareCopy = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = shareUrl;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
   };
 
   if (loading || isSessionLoading) {
@@ -129,10 +161,35 @@ export default function ProfilePage() {
       </nav>
 
       <div className="pp-container">
-        <h1 className="pp-heading">Your Discoveries</h1>
-        <p className="pp-secondary" style={{ marginBottom: 40 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+          <h1 className="pp-heading" style={{ margin: 0 }}>Your Discoveries</h1>
+          <button
+            className="pp-btn-secondary"
+            onClick={handleShare}
+            disabled={shareLoading}
+            style={{ fontSize: 13, whiteSpace: "nowrap" }}
+          >
+            {shareLoading ? "Generating..." : "Share profile"}
+          </button>
+        </div>
+        <p className="pp-secondary" style={{ marginTop: 8, marginBottom: shareUrl ? 16 : 40 }}>
           Everything you've learned about yourself across memories.new
         </p>
+
+        {shareUrl && (
+          <div className="pp-share-bar" style={{ marginBottom: 40 }}>
+            <input
+              className="pp-share-input"
+              type="text"
+              value={shareUrl}
+              readOnly
+              onFocus={(e) => e.target.select()}
+            />
+            <button className="pp-btn-primary" onClick={handleShareCopy} style={{ whiteSpace: "nowrap" }}>
+              {shareCopied ? "Copied \u2713" : "Copy link"}
+            </button>
+          </div>
+        )}
 
         <div className="pp-cards">
           {ALL_APPS.map((app) => {
@@ -517,6 +574,27 @@ const profileStyles = `
   }
   .pp-btn-secondary:hover {
     color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  .pp-share-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .pp-share-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    outline: none;
+    min-width: 0;
+  }
+  .pp-share-input:focus {
     border-color: var(--border-strong);
   }
 
