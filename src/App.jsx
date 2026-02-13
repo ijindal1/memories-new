@@ -385,13 +385,7 @@ function LandingPage({ onStart }) {
         <Link to="/" style={{ fontFamily: "Georgia, serif", fontSize: 20, color: colors.text, fontWeight: 600, textDecoration: "none" }}>
           memories<span style={{ color: colors.accent }}>.new</span>
         </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <AuthStatusBadge />
-          <div style={{ display: "flex", gap: 24, fontSize: 14, color: colors.textSecondary }}>
-            <span style={{ cursor: "pointer" }}>About</span>
-            <span style={{ cursor: "pointer" }}>Apps</span>
-          </div>
-        </div>
+        <AuthStatusBadge />
       </nav>
 
       <div style={{
