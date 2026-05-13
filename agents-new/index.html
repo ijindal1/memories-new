@@ -145,9 +145,16 @@
     .card-icon { font-size: 18px; }
     .card-name { font-size: 15px; font-weight: 500; letter-spacing: -0.005em; }
     .card-desc { color: var(--text-muted); font-size: 13px; line-height: 1.5; flex: 1; }
+    .card-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .card-tag {
       font-family: 'JetBrains Mono', monospace; font-size: 10px;
       color: var(--text-dim); letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .card-platforms { display: flex; gap: 4px; }
+    .pill {
+      font-size: 10px; padding: 2px 7px; border-radius: 4px;
+      background: var(--bg); border: 1px solid var(--border); color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em;
     }
 
     /* Modal */
@@ -169,13 +176,31 @@
     .modal-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
     .modal-icon { font-size: 28px; }
     .modal-name { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
-    .modal-desc { color: var(--text-muted); font-size: 14px; line-height: 1.55; margin-bottom: 22px; }
-    .modal-section { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+    .modal-desc { color: var(--text-muted); font-size: 14px; line-height: 1.55; margin-bottom: 18px; }
+    .wedge-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent-soft); border: 1px solid rgba(217, 119, 87, 0.3);
+      color: var(--accent); font-size: 12px; padding: 4px 10px; border-radius: 999px;
+      margin-bottom: 18px; font-weight: 500;
+    }
+    .wedge-pill::before { content: '◆'; font-size: 9px; }
+    .modal-section { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; margin-top: 14px; }
+    .modal-section:first-of-type { margin-top: 0; }
     .modal-input-box {
       background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
       padding: 12px; font-size: 13px; color: var(--text-muted); line-height: 1.5;
-      margin-bottom: 22px; max-height: 110px; overflow: auto;
+      margin-bottom: 8px; max-height: 110px; overflow: auto;
     }
+    .modal-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+    .modal-trigger {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      color: var(--text-muted); margin-bottom: 8px;
+    }
+    .modal-trigger code {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+      padding: 1px 6px; color: var(--accent); font-size: 11px;
+    }
+    .modal-actions { margin-top: 22px; }
     .modal-actions { display: flex; gap: 10px; align-items: center; }
     .btn {
       font-family: inherit; font-size: 14px; padding: 11px 18px; border-radius: 9px;
@@ -214,9 +239,9 @@
   </header>
 
   <section class="hero">
-    <div class="eyebrow"><span class="pulse"></span><span>150 agent templates · powered by Claude</span></div>
-    <h1 class="headline">Spin up an agent for <em>anything</em>.</h1>
-    <p class="subhead">Type what you want done. We'll pick the best template and run it.</p>
+    <div class="eyebrow"><span class="pulse"></span><span>150 agents · built on Memory Store · runs on Claude</span></div>
+    <h1 class="headline">Deploy an agent that <em>remembers</em>.</h1>
+    <p class="subhead">Type what you want it to remember. We'll match the template, you deploy in one click.</p>
 
     <form class="prompt-wrap" id="prompt-form">
       <div class="prompt-inner">
@@ -255,11 +280,18 @@
         <div class="modal-name" id="modal-name"></div>
       </div>
       <p class="modal-desc" id="modal-desc"></p>
-      <div class="modal-section">Your request</div>
+      <div class="wedge-pill" id="modal-wedge"></div>
+      <div class="modal-section" id="modal-input-label">Your request</div>
       <div class="modal-input-box" id="modal-input"></div>
+      <div class="modal-section">Output</div>
+      <div class="modal-input-box" id="modal-output"></div>
+      <div class="modal-section">Tools</div>
+      <div class="modal-pills" id="modal-tools"></div>
+      <div class="modal-section">Trigger</div>
+      <div class="modal-trigger" id="modal-trigger"></div>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="modal-close">Pick another</button>
-        <button class="btn btn-primary" id="modal-run">Run agent →</button>
+        <button class="btn btn-primary" id="modal-run">Deploy agent →</button>
       </div>
     </div>
   </div>
@@ -278,12 +310,12 @@
     import { TEMPLATES } from './templates.js';
 
     const EXAMPLES = [
-      "Triage my inbox every morning",
-      "Write a cold email to a prospect",
-      "Review my latest GitHub PR",
-      "Research this VC firm",
-      "Draft a blog post from this Loom",
-      "Plan a 5-day trip to Tokyo",
+      "Remember every DD question we've answered",
+      "Brief me before my next investor update",
+      "Recall what each reference said",
+      "Track every privacy request we get",
+      "Surface skill gaps before we hire",
+      "Resurface articles I bookmarked weeks ago",
     ];
 
     // ----- example chips
@@ -325,13 +357,17 @@
       list.forEach(t => {
         const card = document.createElement('div');
         card.className = 'card';
+        const platforms = (t.platform || []).slice(0, 3).map(p => `<span class="pill">${p}</span>`).join('');
         card.innerHTML = `
           <div class="card-head">
             <div class="card-icon">${t.icon}</div>
             <div class="card-name">${t.name}</div>
           </div>
-          <div class="card-desc">${t.desc}</div>
-          <div class="card-tag">${t.category}</div>
+          <div class="card-desc">${t.oneliner}</div>
+          <div class="card-foot">
+            <div class="card-tag">${t.category}</div>
+            <div class="card-platforms">${platforms}</div>
+          </div>
         `;
         card.onclick = () => openModal(t, '');
         grid.appendChild(card);
@@ -346,7 +382,7 @@
       for (const t of TEMPLATES) {
         let score = 0;
         for (const k of t.keywords) if (q.includes(k)) score += 2;
-        for (const w of t.name.toLowerCase().split(/\s+/)) if (q.includes(w)) score += 1;
+        for (const w of t.name.toLowerCase().split(/\s+/)) if (w.length > 2 && q.includes(w)) score += 1;
         if (score > bestScore) { bestScore = score; best = t; }
       }
       return best;
@@ -377,9 +413,23 @@
     function openModal(t, userInput) {
       document.getElementById('modal-icon').textContent = t.icon;
       document.getElementById('modal-name').textContent = t.name;
-      document.getElementById('modal-desc').textContent = t.desc;
+      document.getElementById('modal-desc').textContent = t.oneliner;
+      document.getElementById('modal-wedge').textContent = t.wedge || 'Memory-augmented agent';
       document.getElementById('modal-match-label').textContent = userInput ? 'Best match' : 'Template';
-      document.getElementById('modal-input').textContent = userInput || `(Click "Run agent" to launch ${t.name} with custom inputs.)`;
+      const inputLabel = document.getElementById('modal-input-label');
+      const inputBox = document.getElementById('modal-input');
+      if (userInput) {
+        inputLabel.style.display = '';
+        inputBox.style.display = '';
+        inputBox.textContent = userInput;
+      } else {
+        inputLabel.style.display = 'none';
+        inputBox.style.display = 'none';
+      }
+      document.getElementById('modal-output').textContent = t.output;
+      const toolsEl = document.getElementById('modal-tools');
+      toolsEl.innerHTML = (t.tools || []).map(x => `<span class="pill">${x}</span>`).join('');
+      document.getElementById('modal-trigger').innerHTML = t.trigger.replace(/`([^`]+)`/g, '<code>$1</code>');
       modal.classList.add('open');
     }
     function closeModal() { modal.classList.remove('open'); }
@@ -387,8 +437,7 @@
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
     document.getElementById('modal-run').onclick = () => {
-      // Placeholder: wire to actual agent runner.
-      alert('→ Launching agent (placeholder). Wire this to your Claude runner.');
+      alert('→ Deploying agent (placeholder). Wire this to your deployment endpoint.');
     };
 
     // ----- topbar shadow on scroll
