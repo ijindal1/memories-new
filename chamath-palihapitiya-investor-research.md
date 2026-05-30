@@ -246,9 +246,13 @@ positions are internally coherent, not contradictory.
   up to the application layer, with **energy as the "gatekeeper"**, and argues only
   the US and China can build frontier AI (US "overwhelmingly closed-source," China
   "overwhelmingly open-weight"). ([Substack: The AI Stack](https://chamath.substack.com/p/the-ai-stack))
-- **"Data is your moat":** his most-repeated value claim — *"Your moat is your data…
-  the more unique your data, the more money you'll make in the AI economy."*
-  ([officechai summary](https://officechai.com/ai/chamath-palihapitiya-explains-who-will-make-money-from-ai/))
+- **On moats (note an evolution):** an earlier framing — *"your moat is your data"* —
+  appears in 2025 coverage
+  ([officechai](https://officechai.com/ai/chamath-palihapitiya-explains-who-will-make-money-from-ai/)),
+  but by 2026 his dominant line is the **opposite**: *"the model is not the moat,"* and
+  increasingly that **even data isn't durable** — the only lasting moat is **"atoms,
+  not bits"** (physical assets: minerals, energy, toll roads). Treat "data is the moat"
+  as a 2025 phase he has largely moved past.
 - **The "capex paradox" (2025 Annual Letter):** AI leaders are spending **$300–500B/yr**
   on infrastructure that "only makes sense over a 7–15 year horizon"; if markets
   reprice to short-duration multiples, that capex becomes hard to finance →
@@ -303,7 +307,83 @@ secondary outlets; verify exact wording against chamath.substack.com if it matte
 
 ---
 
-## 9. The "AI chats → self-growing knowledge base" question
+## 9. How he *talks* about AI — vocabulary, metaphors, and tells
+
+A characterization of his recent (2025–2026) language, not direct quotes. Useful for
+recognizing his voice or pattern-matching his framings.
+
+### Signature lexicon (terms he actually leans on)
+- **"The collapse of terminal value"** — his biggest 2026 coinage.
+- **"Fulcrum assets"** — the chokepoint at each layer of the stack that all value above
+  must cross. (Central to his "AI stack" deep dive.)
+- **"The AI stack" / "where value accrues vs. where it commoditizes."**
+- **"Software Factory"** and **"the machine that makes the machines"** (his 8090 framing).
+- **"Year of letdowns"** (2025 agents), **"Ralph Wiggum loops"** (wasteful re-prompting
+  agents that "never figure anything out"), **"500 days"** / "fork in the road" (his ROI
+  deadline), **"not a scintilla of evidence"** (on AI lifting S&P margins).
+- **"Digital super-god"** (frontier AI as double-edged disruptor), **"debt bomb,"**
+  **"fox into the hen house"** (consultancies reselling OpenAI/Anthropic), **"control
+  plane"** (own the token routing).
+- **"Probabilistic vs. deterministic"** software, **"inference vs. training"** (his Jan
+  2025 DeepSeek pivot), **"autocomplete and logic checker"** (what AI *is* today),
+  **"picks and shovels" / "parabolic"** (copper, critical minerals).
+- **⚠ Caveat on a few of my earlier terms:** "Sputnik moment" he *does* use (re: China),
+  though it's more associated with Andreessen. But **"capex paradox," "data is your
+  moat," and "schmuck insurance" are NOT corroborated as his AI vocabulary** — in fact
+  he now argues the near-opposite on moats (see §8). I'm flagging this as a correction.
+
+### Favorite metaphors & analogies
+- **Manufacturing/factory** (dominant): assembly lines, "craftsmen vs. factory,"
+  explicitly anti-"vibe coding."
+- **Electricity/utility:** "foundation models are like electricity — the model isn't
+  the moat, what you build on top is"; **energy as the "gatekeeper"** (transformers,
+  cooling, solar+storage as the only near-term fix).
+- **Industrial-history pattern-matching** (his favorite move): Rockefeller/Standard Oil,
+  Cisco routing, railroads, the fiber-optic bust — used to argue "history rhymes" and
+  locate the fulcrum.
+- **Atoms vs. bits**, **Cold War/geopolitics** (US–China race), **predator** ("fox in
+  the hen house"), **religious/superlative** ("digital super-god"), and a long-running
+  **Berkshire** self-comparison.
+
+### Mental models / frameworks
+- A **layered "AI stack"** (infrastructure → chips → data → models → execution →
+  application), each with "fulcrum assets"; value accrues to the *non-obvious* fulcrums
+  where shared infrastructure meets the physical layer.
+- **Two diverging forks — "Software AI vs. Physical AI"** on different cost curves
+  ("intelligence is becoming free"; "running a model dropped ~1,500x in six years").
+- **Heavy DCF/terminal-value math** (60–80% of equity value is terminal value; index
+  reprices from ~22x to low single-digit FCF) and **ROI math** ("Y > X," show it in
+  margins/productivity/GDP).
+- **Cost-arbitrage/commoditization** (routing 8090 workloads to cheaper open-weight
+  Chinese models like Kimi K2 on Groq).
+
+### Rhetorical register
+**Numbers-heavy/pseudo-quant** (always multiples, %s, x-factors — his dominant tell) ·
+**first-principles** framing · **contrarian provocateur** (picks public fights — Burry,
+Saylor, Cloudflare's CEO) · **self-referential "we at 8090…"** (uses his own startup as
+both evidence and advertisement) · **alarmist-but-"I'm-just-being-rational"** ("collapse,"
+"reckoning," "makes 2008 look like a rounding error") · **history-as-authority** ·
+**plain-English populism** (Simpsons references, "atoms not bits").
+
+### The arc (this is the key insight)
+His **underlying mental models stayed constant** (the stack, fulcrum assets, terminal
+value, cost curves) while his **conclusions flipped from upside to repricing risk**:
+- **2024 letter (pub. mid-2025):** builder-optimist with geopolitical urgency ("Sputnik
+  moment," AI as pivotal, builds 8090).
+- **Mid-2025:** first turn to skepticism ("year of letdowns," energy "way behind") —
+  still "we're building the fix."
+- **Early 2026:** pivot to the **picks-and-shovels/physical trade** (copper "parabolic,"
+  open-weight cost war).
+- **Apr–May 2026:** **full bear / structural-warning mode** ("collapse of terminal
+  value," "digital super-god," "not a scintilla of evidence," "500 days").
+
+*Sourcing caveat: his X and Substack block automated fetching, so wording is "as-reported"
+by multiple secondary outlets (Benzinga, 24/7 Wall St., Motley Fool, Yahoo/AOL Finance,
+getcoai, capitalaidaily), not transcript-verified.*
+
+---
+
+## 10. The "AI chats → self-growing knowledge base" question
 
 You asked (re: a screenshot of an apparent **@chamath post dated Apr 5, 2026** asking
 how to get his "various AI chats to automatically sync … into a structured knowledge
