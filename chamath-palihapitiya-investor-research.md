@@ -383,7 +383,54 @@ getcoai, capitalaidaily), not transcript-verified.*
 
 ---
 
-## 10. The "AI chats → self-growing knowledge base" question
+## 10. His "AI stack" framework, layer by layer
+
+This is his central investing model (from the Substack deep dives *"Where Value
+Accrues in the AI Stack"* and *"The Agentic AI Economy,"* plus the Apr 2026 annual
+letter). The core concept is the **"fulcrum asset"**: within each layer sits *"a single
+point every unit of value above it has to cross"* — the chokepoint that pivots the rest
+of the stack. His investing claim: durable value sits not in the obvious middle (models,
+generic apps) but on the **non-obvious fulcrums where shared infrastructure meets the
+physical layer.** His test: *"if a company's moat requires atoms, not bits, a better
+language model cannot unbundle it overnight."*
+
+| # | Layer | What it includes | Fulcrum asset (the chokepoint) | Commoditizes or captures? | Assets/companies he cites |
+|---|-------|------------------|--------------------------------|---------------------------|---------------------------|
+| 1 | **Infrastructure** | Power, cooling, critical minerals — the physical foundation of data centers and the grid (the most concentrated layer) | **Energy + critical minerals** | **Captures (durable)** — the atoms-not-bits layer | **Copper** ("best AI investment for 2026, and it's not even a stock"; "parabolic"); uranium; nuclear (not viable pre-~2032); solar + storage; LFP cathode supply |
+| 2 | **Chips / Compute** | Advanced semiconductor design, lithography, fabrication | **ASML** — "makes the machine that prints every advanced chip in the world" (EUV monopoly) | **Captures (durable)** — physical chokepoint | ASML, TSMC, Nvidia (3 firms / 3 countries control >90% of advanced AI chips) |
+| 3 | **Data** | The "fuel"; high-quality, proprietary datasets | **Proprietary data / data flywheel** others can't replicate | **Mixed/conditional** — durable only where genuinely proprietary & compounding | *(no single company named cleanly in public summaries)* |
+| 4 | **Models** | Foundation models / LLMs — the "intelligence" itself | Arguably **none durable** — where his commoditization argument bites hardest | **Commoditizes** — "intelligence is becoming free"; cost of running a model fell ~1,500x in 6 years | Scenario winners: Amazon (if models commoditize), Google (if quality stays decisive), Microsoft (if distribution wins) |
+| 5 | **Execution** (agents / orchestration) | Agents that turn model output into completed work; multi-step plans, tool use, monitoring | **Reliability** — eval coverage, rollback, monitoring, escalation | **Captures conditionally** — only when priced on **outcomes** (not seats) and owning the reliability burden; plain orchestration is commodity | *(framed by capability — reliability/eval vendors — not named firms)* |
+| 6 | **Application** | The agents/apps people use daily — "where work actually happens" | **The customer relationship** + proprietary data flywheel + outcome-based pricing | **Captures** where it owns the customer + flywheel; otherwise thin | Microsoft (application-layer bet) |
+
+**The punchline:** value accrues to *"the layer that controls the bottleneck"* — for him,
+**critical minerals, chemical processing, energy storage, and actuation.** In the 2025
+annual letter he extends "atoms not bits" to **farmland, toll roads, batteries**, and
+names the logical endpoint as the **vertically integrated megacorp** (citing
+Tesla/SpaceX/xAI converging into one industrial entity).
+
+### The "Physical AI vs. Digital AI" fork
+From the agentic primer, he splits agents into two paths that map onto the stack:
+- **Physical AI** — embodied systems (humanoid robots, drones, AVs). Standout fulcrums:
+  **energy storage** and **actuation** ("the greatest robot in the world is dead the
+  moment its battery runs out"). Demand case: aging populations + falling robotics cost;
+  humanoid market cited at **>$5T by 2050** (Morgan Stanley). Lands on the
+  physical/infrastructure fulcrums.
+- **Digital AI** — software agents acting in digital environments. Building blocks he
+  names: **APIs, tool use, memory, orchestration.** Maps onto execution + application,
+  and inherits model commoditization.
+- **Convergence:** he expects the two to merge (robots whose "brains" are agentic AIs).
+
+*Caveats: both primary deep dives are paywalled/403-blocked, so layer specifics come from
+multiple consistent secondary summaries. Named companies are solid for Infrastructure and
+Chips; thin/unnamed for Data, Execution, Application (those specifics sit behind the
+paywall). The copper "best 2026 investment" claim is dated Jan 20, 2026 (Motley Fool); the
+miner proxies (Freeport, Southern Copper) are a journalist's stock proxies, not necessarily
+his own picks.*
+
+---
+
+## 11. The "AI chats → self-growing knowledge base" question
 
 You asked (re: a screenshot of an apparent **@chamath post dated Apr 5, 2026** asking
 how to get his "various AI chats to automatically sync … into a structured knowledge
